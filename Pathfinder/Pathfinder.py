@@ -8,8 +8,8 @@ from pathlib import Path
 sound = Path(__file__).with_name('button-6.wav')
 
 sound2 = r"button-6.wav"
-# Diagonal cost: approximation of sqrt(2), which would be the length of the hypotenuse of a right triangle of sides
-# length 1
+# Diagonal cost: approximation of 10*sqrt(2), which would be the length of the hypotenuse of a right triangle of sides
+# length 10
 DIAGONAL_COST = 14
 STRAIGHT_COST = 10
 # Keep the ratio between the grids and window dimensions the same or there will be animation problems
@@ -196,6 +196,7 @@ def retracePath(self, window):
 
 # A* pathfinding algorithm
 def astarAlgo(startNode, targetNode, grid, window):
+    resetFromSearch(grid, window)
     openSet = []
     closedSet = []
     startNode.gCost = 0
@@ -251,6 +252,7 @@ def astarAlgo(startNode, targetNode, grid, window):
 
 # Breadth First Search pathfinding algorithm
 def bfsAlgo(startNode, targetNode, grid, window):
+    resetFromSearch(grid, window)
     visited = []
     queue = []
     visited.append(startNode)
