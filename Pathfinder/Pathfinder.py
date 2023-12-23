@@ -75,8 +75,10 @@ class VisualNode:
             return
 
     def draw(self, win):
-        self.rect = pygame.draw.rect(win, self.color,
-                                     (self.y * self.width, self.x * self.height, self.width - 2, self.width - 2))
+        self.rect = (self.y * self.width, self.x * self.height, self.width - 2, self.height - 2)
+        # Rounded corners
+        pygame.draw.rect(win, self.color, self.rect, border_radius=5)
+
         pygame.display.update(self.rect)
 
     def draw_with_longer_animation(self, win):
@@ -85,7 +87,8 @@ class VisualNode:
             for e in pygame.event.get():
                 if e.type == pygame.QUIT:
                     quit()
-            self.rect = pygame.draw.rect(win, self.color, (self.y * self.width, self.x * self.height, i, i))
+            self.rect = pygame.draw.rect(win, self.color, (self.y * self.width, self.x * self.height, i, i),
+                                         border_radius=5)
             pygame.display.update(self.rect)
             i += 1
             time.sleep(0.0001)
@@ -167,6 +170,7 @@ def reset_from_search(grid, win):
     for row in grid:
         for node in row:
             if node.color == GREEN or node.color == DARK_GREEN or node.color == MAROON:
+                # node.set_color(WHITE)
                 node.set_color(WHITE)
                 update_node(node, win)
 
@@ -345,13 +349,20 @@ def draw_grid(win):
 
 
 # Color constants
-WHITE = (215, 215, 215)
-BLACK = (54, 54, 54)
-DARK_GREEN = (64, 153, 87)
-GREEN = (96, 235, 131)
-PURPLE = (209, 60, 232)
-ORANGE = (230, 163, 69)
-MAROON = (128, 40, 40)
+# WHITE = (215, 215, 215)
+# BLACK = (54, 54, 54)
+BLACK = (100, 100, 100)
+WHITE = (54, 54, 54)
+# DARK_GREEN = (64, 153, 87)
+# GREEN = (96, 235, 131)
+# PURPLE = (209, 60, 232)
+# ORANGE = (230, 163, 69)
+# MAROON = (128, 40, 40)
+DARK_GREEN = (32, 76, 43)
+GREEN = (48, 117, 65)
+PURPLE = (104, 30, 116)
+ORANGE = (115, 81, 34)
+MAROON = (64, 20, 20)
 
 
 # Start menu of the program which tells the user how to use the program
