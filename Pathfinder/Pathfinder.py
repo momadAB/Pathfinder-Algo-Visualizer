@@ -62,7 +62,7 @@ class VisualNode:
 
     def check_state(self):
 
-        if self.color == DARK_GREEN or self.color == GREEN or self.color == WHITE or self.color == MAROON:
+        if self.color == LAVENDER or self.color == SLATEGREY or self.color == WHITE or self.color == TEAL:
             return "walkable"
         elif self.color == BLACK:
             return "barrier"
@@ -169,7 +169,7 @@ class VisualNode:
 def reset_from_search(grid, win):
     for row in grid:
         for node in row:
-            if node.color == GREEN or node.color == DARK_GREEN or node.color == MAROON:
+            if node.color == SLATEGREY or node.color == LAVENDER or node.color == TEAL:
                 # node.set_color(WHITE)
                 node.set_color(WHITE)
                 update_node(node, win)
@@ -188,7 +188,7 @@ def retrace_path(self, window):
                     pygame.quit()
             pygame.mixer.Channel(i % 1).play(pygame.mixer.Sound(sound))
             if currentNode.color is not ORANGE and currentNode.color is not PURPLE:
-                currentNode.set_color(MAROON)
+                currentNode.set_color(TEAL)
                 update_node_with_animation(currentNode, window)
 
             currentNode = currentNode.parent
@@ -224,7 +224,7 @@ def a_star_algo(startNode, targetNode, grid, window):
         closedSet.append(currentNode)
 
         if currentNode is not startNode:
-            currentNode.set_color(GREEN)
+            currentNode.set_color(SLATEGREY)
             update_node(currentNode, window)
 
         for neighbor in currentNode.get_neighbors(grid):
@@ -245,9 +245,9 @@ def a_star_algo(startNode, targetNode, grid, window):
 
                 if neighbor not in openSet:
                     openSet.append(neighbor)
-                    if neighbor is not startNode and neighbor.color is not GREEN:
+                    if neighbor is not startNode and neighbor.color is not SLATEGREY:
                         pygame.mixer.music.play()
-                        neighbor.set_color(DARK_GREEN)
+                        neighbor.set_color(LAVENDER)
                         update_node(neighbor, window)
 
     print("Path not found")
@@ -267,7 +267,7 @@ def bfs_algo(startNode, targetNode, grid, window):
 
         if currentNode is not startNode:
             pygame.mixer.music.play()
-            currentNode.set_color(GREEN)
+            currentNode.set_color(SLATEGREY)
             update_node(currentNode, window)
 
         for neighbor in currentNode.get_neighbors_straight(grid):
@@ -280,9 +280,9 @@ def bfs_algo(startNode, targetNode, grid, window):
             if neighbor.check_state() != "walkable":
                 continue
 
-            if neighbor is not startNode and neighbor.color is not GREEN:
+            if neighbor is not startNode and neighbor.color is not SLATEGREY:
                 pygame.mixer.music.play()
-                neighbor.set_color(DARK_GREEN)
+                neighbor.set_color(LAVENDER)
                 update_node(neighbor, window)
 
             if neighbor not in visited:
@@ -358,11 +358,11 @@ WHITE = (54, 54, 54)
 # PURPLE = (209, 60, 232)
 # ORANGE = (230, 163, 69)
 # MAROON = (128, 40, 40)
-DARK_GREEN = (32, 76, 43)
-GREEN = (48, 117, 65)
+LAVENDER = (230, 230, 250)
+SLATEGREY = (112, 128, 144)
 PURPLE = (104, 30, 116)
 ORANGE = (115, 81, 34)
-MAROON = (64, 20, 20)
+TEAL = (50, 222, 170)
 
 
 # Start menu of the program which tells the user how to use the program
