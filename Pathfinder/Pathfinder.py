@@ -3,9 +3,11 @@ import time
 import threading
 import pygame
 import pygame_menu
+import random
 from pathlib import Path
 import ctypes
 from sound_player import play_sound_for_rect, create_sweep_sound
+from visual_node import VisualNode
 
 # Load kernel32.dll
 kernel32 = ctypes.WinDLL('kernel32', use_last_error=True)
@@ -23,8 +25,17 @@ STRAIGHT_COST = 10
 # Keep the ratio between the grids and window dimensions the same or there will be animation problems
 GRID_X = 60
 GRID_Y = 40
+
 windowHeight = 800
 windowWidth = 1200
+# Color constants
+BLACK = (100, 100, 100)
+WHITE = (54, 54, 54)
+PURPLE = (209, 60, 232)
+ORANGE = (230, 163, 69)
+LAVENDER = (230, 230, 250)
+SLATE_GREY = (112, 128, 144)
+TEAL = (50, 222, 170)
 
 
 # Calculates the overall cost
@@ -42,226 +53,45 @@ def get_distance(node1, node2):
     return (DIAGONAL_COST * diagonal_movements) + (STRAIGHT_COST * y_diff)
 
 
-class VisualNode:
-
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-        self.width = int(windowWidth / GRID_X)
-        self.height = int(windowHeight / GRID_Y)
-        self.color = WHITE
-        self.straight_neighbors = []
-        self.diagonal_neighbors = []
-        self.isClosed = False
-        self.isOpen = False
-        self.isBarrier = False
-        self.parent = None
-        self.hCost = 0
-        self.gCost = 0
-
-    def get_f_cost(self):
-        return self.hCost + self.gCost
-
-    def get_position(self):
-        return self.x, self.y
-
-    def set_color(self, color):
-        self.color = color
-
-    def check_state(self):
-
-        if self.color == LAVENDER or self.color == SLATEGREY or self.color == WHITE or self.color == TEAL:
-            return "walkable"
-        elif self.color == BLACK:
-            return "barrier"
-        elif self.color == PURPLE:
-            return "start"
-        elif self.color == ORANGE:
-            return "target"
-
-        else:
-            return
-
-    def draw(self, win):
-        self.rect = (self.y * self.width, self.x * self.height, self.width - 2, self.height - 2)
-        # Rounded corners
-        pygame.draw.rect(win, self.color, self.rect, border_radius=5)
-
-        pygame.display.update(self.rect)
-
-    def draw_with_longer_animation(self, win):
-        # i = 1
-        # while i < self.width - 1:
-        #     for e in pygame.event.get():
-        #         if e.type == pygame.QUIT:
-        #             quit()
-        #     self.rect = (self.y * self.width, self.x * self.height, i, i)
-        #     pygame.draw.rect(win, self.color, self.rect, border_radius=5)
-        #     pygame.display.update(self.rect)
-        #     i += 1
-        #     time.sleep(0.0001)
-        self.rect = (self.y * self.width, self.x * self.height, self.width - 2, self.height - 2)
-        # Rounded corners
-        pygame.draw.rect(win, self.color, self.rect, border_radius=5)
-
-        pygame.display.update(self.rect)
-
-        # Microseconds sleep
-        usleep(3)
-
-    def get_neighbors(self, grid):
-        self.straight_neighbors = []
-        self.diagonal_neighbors = []
-        rightOpen = False
-        leftOpen = False
-        upOpen = False
-        downOpen = False
-
-        # Straight Neighbors
-        if self.y != GRID_X - 1:
-            if grid[self.x][self.y + 1].check_state() != "barrier":  # Right
-                self.straight_neighbors.append(grid[self.x][self.y + 1])
-                rightOpen = True
-
-        if self.y != 0:
-            if grid[self.x][self.y - 1].check_state() != "barrier":  # Left
-                self.straight_neighbors.append(grid[self.x][self.y - 1])
-                leftOpen = True
-
-        if self.x != GRID_Y - 1:
-            if grid[self.x + 1][self.y].check_state() != "barrier":  # Down
-                self.straight_neighbors.append(grid[self.x + 1][self.y])
-                downOpen = True
-
-        if self.y != 0:
-            if grid[self.x - 1][self.y].check_state() != "barrier":  # Up
-                self.straight_neighbors.append(grid[self.x - 1][self.y])
-                upOpen = True
-
-        # Diagonal Neighbors
-        if upOpen and rightOpen:  # Top right
-            self.diagonal_neighbors.append(grid[self.x - 1][self.y + 1])
-
-        if upOpen and leftOpen:  # Top left
-            self.diagonal_neighbors.append(grid[self.x - 1][self.y - 1])
-
-        if downOpen and rightOpen:  # Bottom right
-            self.diagonal_neighbors.append(grid[self.x + 1][self.y + 1])
-
-        if downOpen and rightOpen:  # Bottom left
-            self.diagonal_neighbors.append(grid[self.x + 1][self.y - 1])
-
-        l = self.straight_neighbors
-        l.extend(self.diagonal_neighbors)
-
-        return l
-
-    def get_neighbors_straight(self, grid):
-        self.straight_neighbors = []
-
-        # Straight Neighbors
-        if self.y != GRID_X - 1:
-            if grid[self.x][self.y + 1].check_state() != "barrier":  # Right
-                self.straight_neighbors.append(grid[self.x][self.y + 1])
-
-        if self.y != 0:
-            if grid[self.x][self.y - 1].check_state() != "barrier":  # Left
-                self.straight_neighbors.append(grid[self.x][self.y - 1])
-
-        if self.x != GRID_Y - 1:
-            if grid[self.x + 1][self.y].check_state() != "barrier":  # Down
-                self.straight_neighbors.append(grid[self.x + 1][self.y])
-
-        if self.y != 0:
-            if grid[self.x - 1][self.y].check_state() != "barrier":  # Up
-                self.straight_neighbors.append(grid[self.x - 1][self.y])
-
-        l = self.straight_neighbors
-
-        return l
-
-
 # Reset every node except start, target, and barriers
 def reset_from_search(grid, win):
     for row in grid:
         for node in row:
-            if node.color == SLATEGREY or node.color == LAVENDER or node.color == TEAL:
+            if node.color == SLATE_GREY or node.color == LAVENDER or node.color == TEAL:
                 # node.set_color(WHITE)
                 node.set_color(WHITE)
                 update_node(node, win)
 
 
-# # Retrace path from parents and color them maroon
-# def retrace_path(self, window):
-#     pathBack = []
-#     if self.parent:
-#
-#         currentNode = self
-#         i = 1
-#         while currentNode:  # Traces back path from nodes parents, not including start and end nodes
-#             for e in pygame.event.get():
-#                 if e.type == pygame.QUIT:
-#                     pygame.quit()
-#             # pygame.mixer.Channel(i % 1).play(pygame.mixer.Sound(sound))
-#             if currentNode.color is not ORANGE and currentNode.color is not PURPLE:
-#                 currentNode.set_color(TEAL)
-#                 # update_node_with_animation(currentNode, window)
-#                 currentNode.draw(window)
-#
-#             currentNode = currentNode.parent
-#             pathBack.append(currentNode)
-#             i += 1
-#
-#     return pathBack
+def retrace_path(self, window, duration=1.0):
+    path_back = []
+    if self.parent:
+        current_node = self
+        while current_node.parent:  # Traces back path from nodes parents, not including start and end nodes
+            path_back.append(current_node)
+            current_node = current_node.parent
 
-def retrace_path(self, window, duration=2.0):
-    pathBack = []
-    node_count = 0  # Initialize node counter
+        print(path_back)
+        # Randomly shuffle the path nodes, excluding the starting node (which is the last one in path_back)
+        random.shuffle(path_back)
+        node_count = len(path_back)
+        delay_per_node = duration / node_count if node_count else 0
+        print(path_back)
 
-    # Count the nodes first
-    currentNode = self
-    while currentNode.parent:
-        node_count += 1
-        currentNode = currentNode.parent
+        # Draw the nodes in the random order
+        for node in path_back:
+            for e in pygame.event.get():
+                if e.type == pygame.QUIT:
+                    pygame.quit()
+            if node.color is not ORANGE and node.color is not PURPLE:
+                node.set_color(TEAL)
+                pygame.time.wait(int(delay_per_node * 1000))
+                play_sound_for_rect(node, GRID_X, GRID_Y)
+                node.draw(window)
+            pygame.display.update()  # Update the display to reflect the changes
 
-    # Calculate the delay per node based on the duration and node count
-    delay_per_node = duration / node_count if node_count else 0
+    return path_back
 
-    # Play the sweep sound based on the node count
-    print(node_count, duration)
-    sweep_sound = create_sweep_sound(node_count, duration)
-    pygame.mixer.stop()
-    sweep_sound.play()
-    # pygame.time.wait(2000)  # Wait for 2 seconds
-    #
-    # test_sound = create_sweep_sound(10, 2)  # 10 nodes, 2 seconds duration
-    # test_sound.play()
-    # pygame.time.wait(2000)  # Wait for 2 seconds
-
-    # Reset the current node to the end node
-    currentNode = self
-
-    while currentNode.parent:  # Retrace the path
-        for e in pygame.event.get():
-            if e.type == pygame.QUIT:
-                pygame.quit()
-        if currentNode.color not in [ORANGE, PURPLE]:
-            currentNode.set_color(TEAL)
-            currentNode.draw(window)
-            pygame.display.flip()  # Update the display
-
-        # Delay between each node
-        pygame.time.wait(int(delay_per_node * 1000))
-
-        currentNode = currentNode.parent
-        pathBack.append(currentNode)
-
-    # Wait for the sound to finish before exiting the function
-    # (this may not be necessary if the drawing takes longer than the sound)
-    remaining_sound_time = max(0, int(duration * 1000) - int(node_count * delay_per_node * 1000))
-    pygame.time.wait(remaining_sound_time)
-
-    return pathBack
 
 # A* pathfinding algorithm
 def a_star_algo(startNode, targetNode, grid, window):
@@ -289,7 +119,7 @@ def a_star_algo(startNode, targetNode, grid, window):
         closedSet.append(currentNode)
 
         if currentNode is not startNode:
-            currentNode.set_color(SLATEGREY)
+            currentNode.set_color(SLATE_GREY)
             update_node_with_animation(currentNode, window)
 
         for neighbor in currentNode.get_neighbors(grid):
@@ -311,7 +141,7 @@ def a_star_algo(startNode, targetNode, grid, window):
 
                 if neighbor not in openSet:
                     openSet.append(neighbor)
-                    if neighbor is not startNode and neighbor.color is not SLATEGREY:
+                    if neighbor is not startNode and neighbor.color is not SLATE_GREY:
                         # pygame.mixer.music.play()
                         play_sound_for_rect(neighbor, GRID_X, GRID_Y)
                         neighbor.set_color(LAVENDER)
@@ -334,8 +164,9 @@ def bfs_algo(startNode, targetNode, grid, window):
 
         if currentNode is not startNode:
             # pygame.mixer.music.play()
-            currentNode.set_color(SLATEGREY)
+            currentNode.set_color(SLATE_GREY)
             usleep(1)
+            play_sound_for_rect(neighbor, GRID_X, GRID_Y)
             update_node(currentNode, window)
 
         for neighbor in currentNode.get_neighbors_straight(grid):
@@ -348,7 +179,7 @@ def bfs_algo(startNode, targetNode, grid, window):
             if neighbor.check_state() != "walkable":
                 continue
 
-            if neighbor is not startNode and neighbor.color is not SLATEGREY:
+            if neighbor is not startNode and neighbor.color is not SLATE_GREY:
                 # pygame.mixer.music.play()
                 neighbor.set_color(LAVENDER)
                 update_node(neighbor, window)
@@ -414,23 +245,6 @@ def draw_grid(win):
     pygame.display.update()
 
     return grid
-
-
-# Color constants
-# WHITE = (215, 215, 215)
-# BLACK = (54, 54, 54)
-BLACK = (100, 100, 100)
-WHITE = (54, 54, 54)
-# DARK_GREEN = (64, 153, 87)
-# GREEN = (96, 235, 131)
-PURPLE = (209, 60, 232)
-ORANGE = (230, 163, 69)
-# MAROON = (128, 40, 40)
-LAVENDER = (230, 230, 250)
-SLATEGREY = (112, 128, 144)
-# PURPLE = (104, 30, 116)
-# ORANGE = (115, 81, 34)
-TEAL = (50, 222, 170)
 
 
 # Start menu of the program which tells the user how to use the program

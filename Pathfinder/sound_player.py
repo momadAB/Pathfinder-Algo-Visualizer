@@ -58,6 +58,11 @@ def create_sound(x, y, grid_width, grid_height):
     return pygame.sndarray.make_sound(stereo_wave)
 
 
+# Function to play the sound for a rectangle being retraced from the path
+def play_sound_for_rect_retrace(rect, grid_width, grid_height):
+    sound = create_sound(rect.x+2, rect.y+2, grid_width, grid_height)
+    sound.play()
+
 # Function to play the sound for a rectangle
 def play_sound_for_rect(rect, grid_width, grid_height):
     sound = create_sound(rect.x, rect.y, grid_width, grid_height)
