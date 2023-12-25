@@ -4,6 +4,13 @@ import threading
 import pygame
 import pygame_menu
 from pathlib import Path
+import ctypes
+
+# Load kernel32.dll
+kernel32 = ctypes.WinDLL('kernel32', use_last_error=True)
+
+# Define Sleep function
+usleep = kernel32.Sleep
 
 sound = Path(__file__).with_name('button-6.wav')
 
@@ -82,16 +89,24 @@ class VisualNode:
         pygame.display.update(self.rect)
 
     def draw_with_longer_animation(self, win):
-        i = 1
-        while i < self.width - 1:
-            for e in pygame.event.get():
-                if e.type == pygame.QUIT:
-                    quit()
-            self.rect = pygame.draw.rect(win, self.color, (self.y * self.width, self.x * self.height, i, i),
-                                         border_radius=5)
-            pygame.display.update(self.rect)
-            i += 1
-            time.sleep(0.0001)
+        # i = 1
+        # while i < self.width - 1:
+        #     for e in pygame.event.get():
+        #         if e.type == pygame.QUIT:
+        #             quit()
+        #     self.rect = (self.y * self.width, self.x * self.height, i, i)
+        #     pygame.draw.rect(win, self.color, self.rect, border_radius=5)
+        #     pygame.display.update(self.rect)
+        #     i += 1
+        #     time.sleep(0.0001)
+        self.rect = (self.y * self.width, self.x * self.height, self.width - 2, self.height - 2)
+        # Rounded corners
+        pygame.draw.rect(win, self.color, self.rect, border_radius=5)
+
+        pygame.display.update(self.rect)
+
+        # Microseconds sleep
+        usleep(3)
 
     def get_neighbors(self, grid):
         self.straight_neighbors = []
@@ -186,10 +201,11 @@ def retrace_path(self, window):
             for e in pygame.event.get():
                 if e.type == pygame.QUIT:
                     pygame.quit()
-            pygame.mixer.Channel(i % 1).play(pygame.mixer.Sound(sound))
+            # pygame.mixer.Channel(i % 1).play(pygame.mixer.Sound(sound))
             if currentNode.color is not ORANGE and currentNode.color is not PURPLE:
                 currentNode.set_color(TEAL)
-                update_node_with_animation(currentNode, window)
+                # update_node_with_animation(currentNode, window)
+                currentNode.draw(window)
 
             currentNode = currentNode.parent
             pathBack.append(currentNode)
@@ -225,7 +241,7 @@ def a_star_algo(startNode, targetNode, grid, window):
 
         if currentNode is not startNode:
             currentNode.set_color(SLATEGREY)
-            update_node(currentNode, window)
+            update_node_with_animation(currentNode, window)
 
         for neighbor in currentNode.get_neighbors(grid):
 
@@ -246,7 +262,7 @@ def a_star_algo(startNode, targetNode, grid, window):
                 if neighbor not in openSet:
                     openSet.append(neighbor)
                     if neighbor is not startNode and neighbor.color is not SLATEGREY:
-                        pygame.mixer.music.play()
+                        # pygame.mixer.music.play()
                         neighbor.set_color(LAVENDER)
                         update_node(neighbor, window)
 
@@ -266,8 +282,9 @@ def bfs_algo(startNode, targetNode, grid, window):
         currentNode = queue.pop(0)
 
         if currentNode is not startNode:
-            pygame.mixer.music.play()
+            # pygame.mixer.music.play()
             currentNode.set_color(SLATEGREY)
+            usleep(1)
             update_node(currentNode, window)
 
         for neighbor in currentNode.get_neighbors_straight(grid):
@@ -281,7 +298,7 @@ def bfs_algo(startNode, targetNode, grid, window):
                 continue
 
             if neighbor is not startNode and neighbor.color is not SLATEGREY:
-                pygame.mixer.music.play()
+                # pygame.mixer.music.play()
                 neighbor.set_color(LAVENDER)
                 update_node(neighbor, window)
 
@@ -398,7 +415,7 @@ def main():
     pygame.mixer.init()
     window = pygame.display.set_mode((windowWidth, windowHeight))
     pygame.mixer.init()
-    pygame.mixer.music.load(sound)
+    # pygame.mixer.music.load(sound)
     pygame.display.set_caption("Pathfinder Visualizer by Mohammad Baqer")
     window.fill(BLACK)  # Black background acts as "outline" for the nodes
     grid = draw_grid(window)
