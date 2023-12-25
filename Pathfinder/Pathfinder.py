@@ -26,6 +26,9 @@ STRAIGHT_COST = 10
 GRID_X = 60
 GRID_Y = 40
 
+# Global volume variable
+global_volume = 1.0
+
 windowHeight = 800
 windowWidth = 1200
 # Color constants
@@ -71,12 +74,12 @@ def retrace_path(self, window, duration=1.0):
             path_back.append(current_node)
             current_node = current_node.parent
 
-        print(path_back)
+        # print(path_back)
         # Randomly shuffle the path nodes, excluding the starting node (which is the last one in path_back)
         random.shuffle(path_back)
         node_count = len(path_back)
         delay_per_node = duration / node_count if node_count else 0
-        print(path_back)
+        # print(path_back)
 
         # Draw the nodes in the random order
         for node in path_back:
@@ -86,7 +89,8 @@ def retrace_path(self, window, duration=1.0):
             if node.color is not ORANGE and node.color is not PURPLE:
                 node.set_color(TEAL)
                 pygame.time.wait(int(delay_per_node * 1000))
-                play_sound_for_rect(node, GRID_X, GRID_Y)
+                # print(global_volume)
+                play_sound_for_rect(node, GRID_X, GRID_Y, global_volume)
                 node.draw(window)
             pygame.display.update()  # Update the display to reflect the changes
 
@@ -143,7 +147,7 @@ def a_star_algo(startNode, targetNode, grid, window):
                     openSet.append(neighbor)
                     if neighbor is not startNode and neighbor.color is not SLATE_GREY:
                         # pygame.mixer.music.play()
-                        play_sound_for_rect(neighbor, GRID_X, GRID_Y)
+                        play_sound_for_rect(neighbor, GRID_X, GRID_Y, global_volume)
                         neighbor.set_color(LAVENDER)
                         update_node(neighbor, window)
 
@@ -166,7 +170,7 @@ def bfs_algo(startNode, targetNode, grid, window):
             # pygame.mixer.music.play()
             currentNode.set_color(SLATE_GREY)
             usleep(1)
-            play_sound_for_rect(neighbor, GRID_X, GRID_Y)
+            play_sound_for_rect(neighbor, GRID_X, GRID_Y, global_volume)
             update_node(currentNode, window)
 
         for neighbor in currentNode.get_neighbors_straight(grid):
@@ -253,26 +257,59 @@ def menu():
 
     window = pygame.display.set_mode((windowWidth, windowHeight))
     pygame.display.set_caption("Pathfinder Visualizer by Mohammad Baqer")
-    menu = pygame_menu.Menu('Welcome', windowWidth, windowHeight,
-                            theme=pygame_menu.themes.THEME_BLUE)
+
+    # Calculate relative font sizes based on window dimensions
+    title_font_size = max(5, windowWidth // 25)  # Title font size (5 is minimum)
+    widget_font_size = max(5, windowWidth // 35)  # Widget font size (5 is minimum)
+
+    # Custom theme
+    mytheme = pygame_menu.themes.Theme(
+        background_color=(0, 0, 0, 0),  # Transparent background
+        title_font=pygame_menu.font.FONT_NEVIS,  # Custom font for title
+        title_font_size=30,
+        widget_font=pygame_menu.font.FONT_FRANCHISE,
+        widget_font_size=20,
+        widget_font_color=(255, 255, 255),
+        selection_color=(255, 0, 0)
+    )
+
+    # Create Menu
+    menu = pygame_menu.Menu('PATHFINDER VISUALIZER by Mohammad Baqer', windowWidth, windowHeight, theme=mytheme)
 
     def start():
         menu.close()
-        main()
+        main()  # Make sure to define the main function
 
-    menu.add.label("Steps to using Pathfinder Visualizer\n\n"
-                   "1. Click to place the start node\n"
+    def change_volume(volume):
+        global global_volume
+        global_volume = volume  # Update the global volume
+
+    # Add widgets
+    menu.add.label("Steps to using Pathfinder Visualizer:", max_char=-1, font_size=title_font_size)
+    menu.add.label("1. Click to place the start node\n"
                    "2. Click to place the target node\n"
-                   "3. Click/hold the mouse click to place barriers\n"
-                   "4. Press SPACE to activate A* pathfinding algorithm or;\n"
-                   "Press B to activate Breadth First Search algorithm\n"
-                   "5. Press C to reset every node, press X to reset while keeping barriers\n\n"
-                   "Also, hold right click to reset any nodes.\n")
+                   "3. Click/hold to place barriers\n"
+                   "4. Press SPACE for A* algorithm, B for BFS\n"
+                   "5. Press C to reset, X to keep barriers\n"
+                   "Hold right click to reset nodes.\n", max_char=-1, font_size=widget_font_size)
+    # Add widgets
+    menu.add.label("Adjust Volume")
+    menu.add.range_slider('Volume', default=1, range_values=(0, 1), increment=0.1, onchange=change_volume)
     menu.add.button('Start', start)
-    menu.mainloop(window)
+    menu.add.button('Quit', pygame_menu.events.EXIT)
 
+    # Main loop
     while True:
-        continue
+        events = pygame.event.get()
+        for event in events:
+            if event.type == pygame.QUIT:
+                exit()
+
+        window.fill((40, 40, 40))  # Fill background color
+        menu.update(events)
+        menu.draw(window)
+
+        pygame.display.update()
 
 
 def main():

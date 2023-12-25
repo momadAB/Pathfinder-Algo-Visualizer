@@ -39,7 +39,7 @@ def create_sound(x, y, grid_width, grid_height):
     # Final frequency is the sum of base frequency and variation
     frequency = base_frequency + frequency_variation
 
-    print(f"Creating sound with frequency: {frequency} Hz for position: ({x}, {y})")  # Debugging line
+    # print(f"Creating sound with frequency: {frequency} Hz for position: ({x}, {y})")  # Debugging line
 
     # Create an array that represents the sound wave
     sample_rate = 44100
@@ -59,11 +59,15 @@ def create_sound(x, y, grid_width, grid_height):
 
 
 # Function to play the sound for a rectangle being retraced from the path
-def play_sound_for_rect_retrace(rect, grid_width, grid_height):
-    sound = create_sound(rect.x+2, rect.y+2, grid_width, grid_height)
-    sound.play()
+def play_sound_for_rect_retrace(rect, grid_width, grid_height, volume):
+    sound = create_sound(rect.x, rect.y, grid_width, grid_height)
+    sound.set_volume(volume)  # Set volume of the sound object
+    sound.play()  # Play the sound
+
 
 # Function to play the sound for a rectangle
-def play_sound_for_rect(rect, grid_width, grid_height):
+def play_sound_for_rect(rect, grid_width, grid_height, volume):
     sound = create_sound(rect.x, rect.y, grid_width, grid_height)
-    sound.play()
+    sound.set_volume(volume)  # Set volume of the sound object
+    sound.play()  # Play the sound
+
