@@ -5,6 +5,7 @@ import pygame
 import pygame_menu
 from pathlib import Path
 import ctypes
+from sound_player import play_sound_for_rect, create_sweep_sound
 
 # Load kernel32.dll
 kernel32 = ctypes.WinDLL('kernel32', use_last_error=True)
@@ -190,29 +191,77 @@ def reset_from_search(grid, win):
                 update_node(node, win)
 
 
-# Retrace path from parents and color them maroon
-def retrace_path(self, window):
+# # Retrace path from parents and color them maroon
+# def retrace_path(self, window):
+#     pathBack = []
+#     if self.parent:
+#
+#         currentNode = self
+#         i = 1
+#         while currentNode:  # Traces back path from nodes parents, not including start and end nodes
+#             for e in pygame.event.get():
+#                 if e.type == pygame.QUIT:
+#                     pygame.quit()
+#             # pygame.mixer.Channel(i % 1).play(pygame.mixer.Sound(sound))
+#             if currentNode.color is not ORANGE and currentNode.color is not PURPLE:
+#                 currentNode.set_color(TEAL)
+#                 # update_node_with_animation(currentNode, window)
+#                 currentNode.draw(window)
+#
+#             currentNode = currentNode.parent
+#             pathBack.append(currentNode)
+#             i += 1
+#
+#     return pathBack
+
+def retrace_path(self, window, duration=2.0):
     pathBack = []
-    if self.parent:
+    node_count = 0  # Initialize node counter
 
-        currentNode = self
-        i = 1
-        while currentNode:  # Traces back path from nodes parents, not including start and end nodes
-            for e in pygame.event.get():
-                if e.type == pygame.QUIT:
-                    pygame.quit()
-            # pygame.mixer.Channel(i % 1).play(pygame.mixer.Sound(sound))
-            if currentNode.color is not ORANGE and currentNode.color is not PURPLE:
-                currentNode.set_color(TEAL)
-                # update_node_with_animation(currentNode, window)
-                currentNode.draw(window)
+    # Count the nodes first
+    currentNode = self
+    while currentNode.parent:
+        node_count += 1
+        currentNode = currentNode.parent
 
-            currentNode = currentNode.parent
-            pathBack.append(currentNode)
-            i += 1
+    # Calculate the delay per node based on the duration and node count
+    delay_per_node = duration / node_count if node_count else 0
+
+    # Play the sweep sound based on the node count
+    print(node_count, duration)
+    sweep_sound = create_sweep_sound(node_count, duration)
+    pygame.mixer.stop()
+    sweep_sound.play()
+    # pygame.time.wait(2000)  # Wait for 2 seconds
+    #
+    # test_sound = create_sweep_sound(10, 2)  # 10 nodes, 2 seconds duration
+    # test_sound.play()
+    # pygame.time.wait(2000)  # Wait for 2 seconds
+
+    # Reset the current node to the end node
+    currentNode = self
+
+    while currentNode.parent:  # Retrace the path
+        for e in pygame.event.get():
+            if e.type == pygame.QUIT:
+                pygame.quit()
+        if currentNode.color not in [ORANGE, PURPLE]:
+            currentNode.set_color(TEAL)
+            currentNode.draw(window)
+            pygame.display.flip()  # Update the display
+
+        # Delay between each node
+        pygame.time.wait(int(delay_per_node * 1000))
+
+        currentNode = currentNode.parent
+        pathBack.append(currentNode)
+
+    # Wait for the sound to finish before exiting the function
+    # (this may not be necessary if the drawing takes longer than the sound)
+    remaining_sound_time = max(0, int(duration * 1000) - int(node_count * delay_per_node * 1000))
+    pygame.time.wait(remaining_sound_time)
 
     return pathBack
-
 
 # A* pathfinding algorithm
 def a_star_algo(startNode, targetNode, grid, window):
@@ -248,6 +297,7 @@ def a_star_algo(startNode, targetNode, grid, window):
             if neighbor is targetNode:
                 neighbor.parent = currentNode
                 print("Path found")
+
                 return retrace_path(neighbor, window)
 
             if neighbor.check_state() != "walkable" or neighbor in closedSet:
@@ -263,6 +313,7 @@ def a_star_algo(startNode, targetNode, grid, window):
                     openSet.append(neighbor)
                     if neighbor is not startNode and neighbor.color is not SLATEGREY:
                         # pygame.mixer.music.play()
+                        play_sound_for_rect(neighbor, GRID_X, GRID_Y)
                         neighbor.set_color(LAVENDER)
                         update_node(neighbor, window)
 
@@ -372,13 +423,13 @@ BLACK = (100, 100, 100)
 WHITE = (54, 54, 54)
 # DARK_GREEN = (64, 153, 87)
 # GREEN = (96, 235, 131)
-# PURPLE = (209, 60, 232)
-# ORANGE = (230, 163, 69)
+PURPLE = (209, 60, 232)
+ORANGE = (230, 163, 69)
 # MAROON = (128, 40, 40)
 LAVENDER = (230, 230, 250)
 SLATEGREY = (112, 128, 144)
-PURPLE = (104, 30, 116)
-ORANGE = (115, 81, 34)
+# PURPLE = (104, 30, 116)
+# ORANGE = (115, 81, 34)
 TEAL = (50, 222, 170)
 
 
@@ -413,8 +464,10 @@ def menu():
 def main():
     pygame.init()
     pygame.mixer.init()
+    # Initialize Pygame mixer
+    # pygame.mixer.init(frequency=44100, size=-16, channels=2)
     window = pygame.display.set_mode((windowWidth, windowHeight))
-    pygame.mixer.init()
+    # pygame.mixer.init()
     # pygame.mixer.music.load(sound)
     pygame.display.set_caption("Pathfinder Visualizer by Mohammad Baqer")
     window.fill(BLACK)  # Black background acts as "outline" for the nodes
