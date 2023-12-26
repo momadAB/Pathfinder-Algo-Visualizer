@@ -329,8 +329,11 @@ def main():
 
     while True:
         for e in pygame.event.get():
-            if e.type == pygame.QUIT:  # Allows quiting while in the while loop
-                return
+            if e.type == pygame.QUIT:
+                return  # Exit the loop if window is closed
+            elif e.type == pygame.KEYDOWN:
+                if e.key == pygame.K_ESCAPE:
+                    return  # Exit the loop if Escape is pressed
 
             if pygame.mouse.get_pressed(num_buttons=3)[0]:  # Left mouse click, set nodes to start, target, or barrier
                 coord = pygame.mouse.get_pos()
