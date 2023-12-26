@@ -27,16 +27,19 @@ To get the visualizer up and running, follow these steps:
 
 Clone the repository to your local machine:
 
-    git clone https://github.com/your-username/pathfinder-visualizer.git
-
+```bash
+git clone https://github.com/your-username/pathfinder-visualizer.git
+```
 Navigate to the cloned directory:
 
-    cd /PATH/TO/pathfinder-visualizer
-
+```bash
+cd /PATH/TO/DIR
+```
 Run the program:
 
-    python pathfinder.py
-
+```bash
+python main.py
+```
 Usage
 
 Upon launching the Pathfinder Visualizer, a start menu will display the following instructions:
