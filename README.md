@@ -2,6 +2,9 @@
 
 Pathfinder Visualizer is an interactive visualization tool for demonstrating pathfinding algorithms. It currently supports A* (A star) and Breadth First Search (BFS) algorithms, allowing users to visually understand how these algorithms traverse a grid to find the shortest path between two points.
 
+![Screenshot1_Pathfinder](https://github.com/momadAB/Pathfinder/assets/97381129/e06fa9d0-2cd9-49dd-aac2-a69f80bc19ab)
+
+
 ## Features
 
 - Interactive grid to set start and target nodes.
