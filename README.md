@@ -17,45 +17,37 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-Before running the Pathfinder Visualizer, you need to have Pygame, Pygame_menu, and Numpy installed on your system. They can be installed like this:
+You will need Python (version 3.6 or higher) and the following Python packages: `pygame`, `pygame_menu`, and `numpy`. You can install them using the following command:
 
-
+```bash
 pip install pygame pygame_menu numpy
-
-Installing
+```
 
 To get the visualizer up and running, follow these steps:
 
-    Clone the repository to your local machine:
+Clone the repository to your local machine:
 
-bash
+    git clone https://github.com/your-username/pathfinder-visualizer.git
 
-git clone https://github.com/your-username/pathfinder-visualizer.git
+Navigate to the cloned directory:
 
-    Navigate to the cloned directory:
+    cd /PATH/TO/pathfinder-visualizer
 
-bash
+Run the program:
 
-cd pathfinder-visualizer
-
-    Run the program:
-
-bash
-
-python pathfinder.py
+    python pathfinder.py
 
 Usage
 
-When you run the Pathfinder Visualizer, you will be greeted with a start menu that provides the following instructions:
+Upon launching the Pathfinder Visualizer, a start menu will display the following instructions:
 
-    Click to place the start node.
-    Click to place the target node.
-    Click/hold to place barriers.
-    Press SPACE for A* algorithm, B for BFS.
-    Press C to reset, X to keep barriers.
-    Hold right click to remove nodes.
+    Click for the first time to place the start node.
+    Click a second time to place the target node.
+    Click/hold to draw barriers.
+    Press SPACE to execute the A* algorithm, or B for BFS.
+    Press C to clear the grid, or X to retain barriers.
+    Right-click to remove nodes.
 
-Adjust the volume as needed using the slider, and click 'Start' to begin visualizing the pathfinding algorithms.
-Contributing
+Adjust the volume with the slider and click 'Start' to begin the visualization.
 
 Created by Mohammad Baqer
