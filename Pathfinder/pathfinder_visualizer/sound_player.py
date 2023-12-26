@@ -30,30 +30,29 @@ def create_sweep_sound(node_count, duration=2.0):
 
 # Function to create a sound based on x-coordinate
 def create_sound(x, y, grid_width, grid_height):
-    # Base frequency range determined by x-coordinate (e.g., 220 to 440 Hz)
-    base_frequency = np.interp(x, [0, grid_width], [110, 330])
-
-    # Additional frequency variation determined by y-coordinate (e.g., +/- 20 Hz)
+    # Map the coordinates to frequencies
+    base_frequency = np.interp(x, [0, grid_width], [110, 330])   # 110 330
     frequency_variation = np.interp(y, [0, grid_height], [-20, 20])
-
-    # Final frequency is the sum of base frequency and variation
     frequency = base_frequency + frequency_variation
 
-    # print(f"Creating sound with frequency: {frequency} Hz for position: ({x}, {y})")  # Debugging line
-
-    # Create an array that represents the sound wave
+    # Create the sound wave
     sample_rate = 44100
-    duration = 0.1  # shorter duration for a quick sound effect
+    duration = 0.1
     t = np.linspace(0, duration, int(sample_rate * duration))
-    wave = np.sin(2 * np.pi * frequency * t)  # Sine wave formula
+    wave = np.sin(2 * np.pi * frequency * t)
 
-    # Ensure it's in 16-bit to be compatible with Pygame sound array
+    # Apply fade in and fade out
+    fade_length = int(sample_rate * 0.01)  # 0.01 seconds fade
+    fade_in = np.linspace(0, 1, fade_length)
+    fade_out = np.linspace(1, 0, fade_length)
+    wave[:fade_length] *= fade_in
+    wave[-fade_length:] *= fade_out
+
+    # Ensure the wave is 16-bit and stereo
     wave = np.array(wave * 32767, 'int16')
-
-    # Create a stereo sound by duplicating the wave into two channels
-    stereo_wave = np.zeros((wave.size, 2), dtype=np.int16)  # initialize a 2D array for stereo
-    stereo_wave[:, 0] = wave  # left channel
-    stereo_wave[:, 1] = wave  # right channel
+    stereo_wave = np.zeros((wave.size, 2), dtype=np.int16)
+    stereo_wave[:, 0] = wave
+    stereo_wave[:, 1] = wave
 
     return pygame.sndarray.make_sound(stereo_wave)
 
