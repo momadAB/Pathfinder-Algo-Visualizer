@@ -1,6 +1,7 @@
 import pygame
 import ctypes
-from pathfinder_visualizer import GRID_X, GRID_Y, windowWidth, windowHeight
+import pathfinder_visualizer
+from pathfinder_visualizer import windowWidth, windowHeight
 
 # Load kernel32.dll
 kernel32 = ctypes.WinDLL('kernel32', use_last_error=True)
@@ -9,8 +10,8 @@ kernel32 = ctypes.WinDLL('kernel32', use_last_error=True)
 usleep = kernel32.Sleep
 
 # Keep the ratio between the grids and window dimensions the same or there will be animation problems
-# GRID_X = 60
-# GRID_Y = 40
+# pathfinder_visualizer.GRID_X = 60
+# pathfinder_visualizer.GRID_Y = 40
 
 # windowHeight = 800
 # windowWidth = 1200
@@ -29,8 +30,8 @@ class VisualNode:
     def __init__(self, x, y):
         self.x = x
         self.y = y
-        self.width = int(windowWidth / GRID_X)
-        self.height = int(windowHeight / GRID_Y)
+        self.width = int(windowWidth / pathfinder_visualizer.GRID_X)
+        self.height = int(windowHeight / pathfinder_visualizer.GRID_Y)
         self.color = WHITE
         self.straight_neighbors = []
         self.diagonal_neighbors = []
@@ -72,16 +73,6 @@ class VisualNode:
         pygame.display.update(self.rect)
 
     def draw_with_longer_animation(self, win):
-        # i = 1
-        # while i < self.width - 1:
-        #     for e in pygame.event.get():
-        #         if e.type == pygame.QUIT:
-        #             quit()
-        #     self.rect = (self.y * self.width, self.x * self.height, i, i)
-        #     pygame.draw.rect(win, self.color, self.rect, border_radius=5)
-        #     pygame.display.update(self.rect)
-        #     i += 1
-        #     time.sleep(0.0001)
         self.rect = (self.y * self.width, self.x * self.height, self.width - 2, self.height - 2)
         # Rounded corners
         pygame.draw.rect(win, self.color, self.rect, border_radius=5)
@@ -100,7 +91,7 @@ class VisualNode:
         downOpen = False
 
         # Straight Neighbors
-        if self.y != GRID_X - 1:
+        if self.y != pathfinder_visualizer.GRID_X - 1:
             if grid[self.x][self.y + 1].check_state() != "barrier":  # Right
                 self.straight_neighbors.append(grid[self.x][self.y + 1])
                 rightOpen = True
@@ -110,7 +101,7 @@ class VisualNode:
                 self.straight_neighbors.append(grid[self.x][self.y - 1])
                 leftOpen = True
 
-        if self.x != GRID_Y - 1:
+        if self.x != pathfinder_visualizer.GRID_Y - 1:
             if grid[self.x + 1][self.y].check_state() != "barrier":  # Down
                 self.straight_neighbors.append(grid[self.x + 1][self.y])
                 downOpen = True
@@ -142,7 +133,7 @@ class VisualNode:
         self.straight_neighbors = []
 
         # Straight Neighbors
-        if self.y != GRID_X - 1:
+        if self.y != pathfinder_visualizer.GRID_X - 1:
             if grid[self.x][self.y + 1].check_state() != "barrier":  # Right
                 self.straight_neighbors.append(grid[self.x][self.y + 1])
 
@@ -150,7 +141,7 @@ class VisualNode:
             if grid[self.x][self.y - 1].check_state() != "barrier":  # Left
                 self.straight_neighbors.append(grid[self.x][self.y - 1])
 
-        if self.x != GRID_Y - 1:
+        if self.x != pathfinder_visualizer.GRID_Y - 1:
             if grid[self.x + 1][self.y].check_state() != "barrier":  # Down
                 self.straight_neighbors.append(grid[self.x + 1][self.y])
 

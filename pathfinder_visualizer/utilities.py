@@ -6,9 +6,10 @@ import pygame_menu
 import time
 from pathlib import Path
 import ctypes
+import pathfinder_visualizer
 from .sound_player import play_sound_for_rect, create_sweep_sound
 from .visual_node import VisualNode
-from pathfinder_visualizer import GRID_X, GRID_Y, windowWidth, windowHeight
+from pathfinder_visualizer import windowWidth, windowHeight
 
 # Load kernel32.dll
 kernel32 = ctypes.WinDLL('kernel32', use_last_error=True)
@@ -24,8 +25,8 @@ sound2 = r"button-6.wav"
 DIAGONAL_COST = 14
 STRAIGHT_COST = 10
 # # Keep the ratio between the grids and window dimensions the same or there will be animation problems
-# GRID_X = 120
-# GRID_Y = 80
+# pathfinder_visualizer.GRID_X = 120
+# pathfinder_visualizer.GRID_Y = 80
 
 # Global volume variable
 global_volume = 1.0
@@ -152,6 +153,10 @@ def menu():
         global global_volume
         global_volume = volume  # Update the global volume
 
+    def change_grid_size(value):
+        pathfinder_visualizer.GRID_X = int(60 * value)  # Update the global grid_size
+        pathfinder_visualizer.GRID_Y = int(40 * value)
+
     # Add widgets
     menu.add.label("Steps to using Pathfinder Visualizer:", max_char=-1, font_size=title_font_size)
     menu.add.label("1. Click to place the start node\n"
@@ -163,6 +168,10 @@ def menu():
     # Add widgets
     menu.add.label("Adjust Volume")
     menu.add.range_slider('Volume', default=1, range_values=(0, 1), increment=0.1, onchange=change_volume)
+    # Add Grid Size Slider
+    menu.add.label("Adjust Grid Size")
+    menu.add.range_slider('Grid Size', default=1.0, range_values=(0.5, 3.0), increment=0.1, onchange=change_grid_size)
+
     menu.add.button('Start', start)
     menu.add.button('Quit', pygame_menu.events.EXIT)
 
@@ -229,7 +238,7 @@ def retrace_path(self, window, duration=1.0):
                 pygame.time.wait(int(delay_per_node * 1000))
                 # print(global_volume)
                 # pygame.mixer.stop()
-                play_sound_for_rect(node, GRID_X, GRID_Y, global_volume)
+                play_sound_for_rect(node, pathfinder_visualizer.GRID_X, pathfinder_visualizer.GRID_Y, global_volume)
                 node.draw(window)
             pygame.display.update()  # Update the display to reflect the changes
 
@@ -287,7 +296,7 @@ def a_star_algo(startNode, targetNode, grid, window):
                     if neighbor is not startNode and neighbor.color is not SLATE_GREY:
                         # pygame.mixer.music.play()
                         # pygame.mixer.stop()
-                        play_sound_for_rect(neighbor, GRID_X, GRID_Y, global_volume)
+                        play_sound_for_rect(neighbor, pathfinder_visualizer.GRID_X, pathfinder_visualizer.GRID_Y, global_volume)
                         neighbor.set_color(LAVENDER)
                         update_node(neighbor, window)
 
@@ -311,7 +320,7 @@ def bfs_algo(startNode, targetNode, grid, window):
             currentNode.set_color(SLATE_GREY)
             usleep(1)
             # pygame.mixer.stop()
-            play_sound_for_rect(neighbor, GRID_X, GRID_Y, global_volume)
+            play_sound_for_rect(neighbor, pathfinder_visualizer.GRID_X, pathfinder_visualizer.GRID_Y, global_volume)
             update_node(currentNode, window)
 
         for neighbor in currentNode.get_neighbors_straight(grid):
@@ -352,8 +361,8 @@ def update_node_with_animation(node, window):
 def coord_to_grid(coord):
     x, y = coord
 
-    column = x // (windowWidth // GRID_X)
-    row = y // (windowHeight // GRID_Y)
+    column = x // (windowWidth // pathfinder_visualizer.GRID_X)
+    row = y // (windowHeight // pathfinder_visualizer.GRID_Y)
 
     return column, row
 
@@ -361,22 +370,22 @@ def coord_to_grid(coord):
 def draw_grid(win):
     grid = []
     # Populate grid
-    for i in range(GRID_Y):
+    for i in range(pathfinder_visualizer.GRID_Y):
         grid.append([])
-        for j in range(GRID_X):
+        for j in range(pathfinder_visualizer.GRID_X):
             node = VisualNode(i, j)
             grid[i].append(node)
 
     # Make outline
     for node in grid[0]:
         node.set_color(BLACK)
-    for node in grid[GRID_Y - 1]:
+    for node in grid[pathfinder_visualizer.GRID_Y - 1]:
         node.set_color(BLACK)
     vertical1 = []
     vertical2 = []
     for list in grid:
         vertical1.append(list[0])
-        vertical2.append(list[GRID_X - 1])
+        vertical2.append(list[pathfinder_visualizer.GRID_X - 1])
     for node in vertical1:
         node.set_color(BLACK)
     for node in vertical2:
