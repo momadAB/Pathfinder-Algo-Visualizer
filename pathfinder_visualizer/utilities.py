@@ -282,6 +282,13 @@ def a_star_algo(startNode, targetNode, grid, window):
     openSet.append(startNode)
     i = 1
     while openSet:
+        for event in pygame.event.get():  # Check for pygame events
+            if event.type == pygame.QUIT:  # Quit if window is closed
+                return []
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:  # Check for ESC key
+                print("Search stopped by user")
+                reset_from_search(grid, window)
+                return []
         currentNode = openSet[0]
 
         for node in openSet:
@@ -337,6 +344,13 @@ def bfs_algo(startNode, targetNode, grid, window):
     queue.append(startNode)
 
     while queue:
+        for event in pygame.event.get():  # Check for pygame events
+            if event.type == pygame.QUIT:  # Quit if window is closed
+                return []
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:  # Check for ESC key
+                print("Search stopped by user")
+                reset_from_search(grid, window)
+                return []
         currentNode = queue.pop(0)
 
         if currentNode is not startNode:
