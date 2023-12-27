@@ -12,19 +12,6 @@ usleep = kernel32.Sleep
 # Keep the ratio between the grids and window dimensions the same or there will be animation problems
 # pathfinder_visualizer.GRID_X = 60
 # pathfinder_visualizer.GRID_Y = 40
-
-# windowHeight = 800
-# windowWidth = 1200
-# Color constants
-BLACK = (100, 100, 100)
-WHITE = (54, 54, 54)
-PURPLE = (209, 60, 232)
-ORANGE = (230, 163, 69)
-LAVENDER = (230, 230, 250)
-SLATE_GREY = (112, 128, 144)
-TEAL = (50, 222, 170)
-
-
 class VisualNode:
 
     def __init__(self, x, y):
@@ -32,7 +19,7 @@ class VisualNode:
         self.y = y
         self.width = int(windowWidth / pathfinder_visualizer.GRID_X)
         self.height = int(windowHeight / pathfinder_visualizer.GRID_Y)
-        self.color = WHITE
+        self.color = pathfinder_visualizer.WHITE
         self.straight_neighbors = []
         self.diagonal_neighbors = []
         self.isClosed = False
@@ -49,12 +36,9 @@ class VisualNode:
             'width': self.width,
             'height': self.height,
             'color': self.color,
-            'straightNeighbors': self.straight_neighbors,
-            'diagonalNeighbors': self.diagonal_neighbors,
             'isClosed': self.isClosed,
             'isOpen': self.isOpen,
             'isBarrier': self.isBarrier,
-            'parent': self.parent,
             'hCost': self.hCost,
             'gCost': self.gCost,
             }
@@ -73,13 +57,16 @@ class VisualNode:
         Checks the state of the node. Can be walkable, barrier, start, or target.
         :return:  String describing the state of the node
         '''
-        if self.color == LAVENDER or self.color == SLATE_GREY or self.color == WHITE or self.color == TEAL:
+        if self.color == pathfinder_visualizer.LAVENDER \
+                or self.color == pathfinder_visualizer.SLATE_GREY\
+                or self.color == pathfinder_visualizer.WHITE\
+                or self.color == pathfinder_visualizer.TEAL:
             return "walkable"
-        elif self.color == BLACK:
+        elif self.color == pathfinder_visualizer.BLACK:
             return "barrier"
-        elif self.color == PURPLE:
+        elif self.color == pathfinder_visualizer.PURPLE:
             return "start"
-        elif self.color == ORANGE:
+        elif self.color == pathfinder_visualizer.ORANGE:
             return "target"
 
         else:

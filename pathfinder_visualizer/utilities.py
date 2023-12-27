@@ -8,7 +8,7 @@ import json
 from pathlib import Path
 import ctypes
 import pathfinder_visualizer
-from .sound_player import play_sound_for_rect, create_sweep_sound
+from .sound_player import play_sound_for_rect
 from .visual_node import VisualNode
 from pathfinder_visualizer import windowWidth, windowHeight
 
@@ -32,17 +32,6 @@ STRAIGHT_COST = 10
 # Global volume variable
 global_volume = 1.0
 
-# windowHeight = 800
-# windowWidth = 1200
-# Color constants
-BLACK = (100, 100, 100)
-WHITE = (54, 54, 54)
-PURPLE = (209, 60, 232)
-ORANGE = (230, 163, 69)
-LAVENDER = (230, 230, 250)
-SLATE_GREY = (112, 128, 144)
-TEAL = (50, 222, 170)
-
 
 def main():
     pygame.init()
@@ -53,19 +42,32 @@ def main():
     # pygame.mixer.init()
     # pygame.mixer.music.load(sound)
     pygame.display.set_caption("Pathfinder Visualizer by Mohammad Baqer")
-    window.fill(BLACK)  # Black background acts as "outline" for the nodes
+    window.fill(pathfinder_visualizer.BLACK)  # Black background acts as "outline" for the nodes
     grid = draw_grid(window)
 
     start = None
     target = None
 
+    try:
+        loaded_grid, gridx, gridy, start, target = load_grid_from_file('menugrid')
+        if gridx == pathfinder_visualizer.GRID_X and gridy == pathfinder_visualizer.GRID_Y\
+                and loaded_grid is not None:
+            grid = loaded_grid
+            redraw_grid(window, loaded_grid)
+            print('loaded')
+        else:
+            start = None
+            target = None
+    except FileNotFoundError:
+        print('no such file or directory')
+        start = None
+        target = None
+        pass
+
     while True:
         for e in pygame.event.get():
             if e.type == pygame.QUIT:
                 return  # Exit the loop if window is closed
-            elif e.type == pygame.KEYDOWN:
-                if e.key == pygame.K_ESCAPE:
-                    return  # Exit the loop if Escape is pressed
 
             if pygame.mouse.get_pressed(num_buttons=3)[0]:  # Left mouse click, set nodes to start, target, or barrier
                 coord = pygame.mouse.get_pos()
@@ -73,20 +75,22 @@ def main():
 
                 node = grid[column][row]
 
+                # print(start, target, node, node.check_state(), node.color)
+
                 if not start and node is not target and node.check_state() == "walkable":
-                    node.set_color(PURPLE)  # Start node
+                    node.set_color(pathfinder_visualizer.PURPLE)  # Start node
                     start = node
                     print("Start node set.")
                     time.sleep(0.1)
 
                 elif not target and node is not start and node.check_state() == "walkable":
-                    node.set_color(ORANGE)  # Target node
+                    node.set_color(pathfinder_visualizer.ORANGE)  # Target node
                     target = node
                     print("Target node set.")
                     time.sleep(0.1)
 
                 elif node is not start and node is not target:
-                    node.set_color(BLACK)  # Barrier node
+                    node.set_color(pathfinder_visualizer.BLACK)  # Barrier node
 
                 update_node(node, window)
 
@@ -94,8 +98,10 @@ def main():
                 coord = pygame.mouse.get_pos()
                 row, column = coord_to_grid(coord)
 
+                # print(start, target, node.check_state(), node.color)
+
                 node = grid[column][row]
-                node.set_color(WHITE)  # Walkable node color
+                node.set_color(pathfinder_visualizer.WHITE)  # Walkable node color
 
                 if node is start:
                     start = None
@@ -106,7 +112,14 @@ def main():
 
             elif e.type == pygame.KEYDOWN:
 
-                if e.key == pygame.K_SPACE and start and target:  # A* algorithm
+                if e.key == pygame.K_ESCAPE:
+                    print('saved')
+                    reset_from_search(grid, window)
+                    save_grid_to_file(grid, pathfinder_visualizer.GRID_X,
+                                      pathfinder_visualizer.GRID_Y, 'menugrid')
+                    return  # Exit the loop if Escape is pressed
+
+                elif e.key == pygame.K_SPACE and start and target:  # A* algorithm
                     a_star_algo(start, target, grid, window)
 
                 elif e.key == pygame.K_s:
@@ -116,8 +129,11 @@ def main():
 
                 elif e.key == pygame.K_l:
                     print('Loading layout')
-                    grid, pathfinder_visualizer.GRID_X, pathfinder_visualizer.GRID_Y = load_grid_from_file('testfile')
-                    redraw_grid(window, grid)
+                    loaded_grid, pathfinder_visualizer.GRID_X, pathfinder_visualizer.GRID_Y,\
+                        start, target = load_grid_from_file('testfile')
+                    if loaded_grid is not None:
+                        grid = loaded_grid
+                        redraw_grid(window, loaded_grid)
 
                 elif e.key == pygame.K_b and start and target:  # BFS algorithm
                     bfs_algo(start, target, grid, window)
@@ -214,9 +230,11 @@ def menu():
             ("B", "for BFS"),
             ("C", "to reset"),
             ("X", "to reset but keep barriers"),
+            ("S", "to save current map"),
+            ("L", "to load last saved map"),
             ("ESC", "to return to menu")
         ]
-        x, y = 50, 230  # Starting position for key instructions
+        x, y = 50, 210  # Starting position for key instructions
         for key, text in key_instructions:
             # Render key in red box
             key_surf = pygame.font.Font(None, key_font_size).render(key, True, pygame.Color('white'))
@@ -252,9 +270,11 @@ def get_distance(node1, node2):
 def reset_from_search(grid, win):
     for row in grid:
         for node in row:
-            if node.color == SLATE_GREY or node.color == LAVENDER or node.color == TEAL:
+            if node.color == pathfinder_visualizer.SLATE_GREY\
+                    or node.color == pathfinder_visualizer.LAVENDER\
+                    or node.color == pathfinder_visualizer.TEAL:
                 # node.set_color(WHITE)
-                node.set_color(WHITE)
+                node.set_color(pathfinder_visualizer.WHITE)
                 update_node(node, win)
 
 
@@ -278,8 +298,10 @@ def retrace_path(self, window, duration=1.0):
             for e in pygame.event.get():
                 if e.type == pygame.QUIT:
                     pygame.quit()
-            if node.color is not ORANGE and node.color is not PURPLE:
-                node.set_color(TEAL)
+            # print(node.color)
+            if node.color != pathfinder_visualizer.ORANGE\
+                    and node.color != pathfinder_visualizer.PURPLE:
+                node.set_color(pathfinder_visualizer.TEAL)
                 pygame.time.wait(int(delay_per_node * 1000))
                 # print(global_volume)
                 # pygame.mixer.stop()
@@ -323,7 +345,7 @@ def a_star_algo(startNode, targetNode, grid, window):
         closedSet.append(currentNode)
 
         if currentNode is not startNode:
-            currentNode.set_color(SLATE_GREY)
+            currentNode.set_color(pathfinder_visualizer.SLATE_GREY)
             update_node_with_animation(currentNode, window)
 
         for neighbor in currentNode.get_neighbors(grid):
@@ -345,12 +367,13 @@ def a_star_algo(startNode, targetNode, grid, window):
 
                 if neighbor not in openSet:
                     openSet.append(neighbor)
-                    if neighbor is not startNode and neighbor.color is not SLATE_GREY:
+                    if neighbor is not startNode\
+                            and neighbor.color is not pathfinder_visualizer.SLATE_GREY:
                         # pygame.mixer.music.play()
                         # pygame.mixer.stop()
                         play_sound_for_rect(neighbor, pathfinder_visualizer.GRID_X, pathfinder_visualizer.GRID_Y,
                                             global_volume)
-                        neighbor.set_color(LAVENDER)
+                        neighbor.set_color(pathfinder_visualizer.LAVENDER)
                         update_node(neighbor, window)
 
     print("Path not found")
@@ -377,7 +400,7 @@ def bfs_algo(startNode, targetNode, grid, window):
 
         if currentNode is not startNode:
             # pygame.mixer.music.play()
-            currentNode.set_color(SLATE_GREY)
+            currentNode.set_color(pathfinder_visualizer.SLATE_GREY)
             usleep(1)
             # pygame.mixer.stop()
             play_sound_for_rect(neighbor, pathfinder_visualizer.GRID_X, pathfinder_visualizer.GRID_Y, global_volume)
@@ -393,9 +416,10 @@ def bfs_algo(startNode, targetNode, grid, window):
             if neighbor.check_state() != "walkable":
                 continue
 
-            if neighbor is not startNode and neighbor.color is not SLATE_GREY:
+            if neighbor is not startNode\
+                    and neighbor.color is not pathfinder_visualizer.SLATE_GREY:
                 # pygame.mixer.music.play()
-                neighbor.set_color(LAVENDER)
+                neighbor.set_color(pathfinder_visualizer.LAVENDER)
                 update_node(neighbor, window)
 
             if neighbor not in visited:
@@ -438,18 +462,18 @@ def draw_grid(win):
 
     # Make outline
     for node in grid[0]:
-        node.set_color(BLACK)
+        node.set_color(pathfinder_visualizer.BLACK)
     for node in grid[pathfinder_visualizer.GRID_Y - 1]:
-        node.set_color(BLACK)
+        node.set_color(pathfinder_visualizer.BLACK)
     vertical1 = []
     vertical2 = []
     for list in grid:
         vertical1.append(list[0])
         vertical2.append(list[pathfinder_visualizer.GRID_X - 1])
     for node in vertical1:
-        node.set_color(BLACK)
+        node.set_color(pathfinder_visualizer.BLACK)
     for node in vertical2:
-        node.set_color(BLACK)
+        node.set_color(pathfinder_visualizer.BLACK)
 
     # Draw nodes in grid
     for row in grid:
@@ -469,7 +493,7 @@ def redraw_grid(window, grid):
     :param grid: The grid, a 2D list of VisualNode objects.
     """
     # Clear the window before redrawing
-    window.fill(BLACK)
+    window.fill(pathfinder_visualizer.BLACK)
 
     # Draw each node in the grid
     for row in grid:
@@ -500,32 +524,46 @@ def save_grid_to_file(grid, grid_x, grid_y, filename):
 
 
 def load_grid_from_file(filename):
-    with open(filename, 'r') as file:
-        grid_data = json.load(file)
+    try:
+        with open(filename, 'r') as file:
+            grid_data = json.load(file)
 
-    grid_x = grid_data['GRID_X']
-    grid_y = grid_data['GRID_Y']
-    serialized_grid = grid_data['grid']
+        grid_x = grid_data['GRID_X']
+        grid_y = grid_data['GRID_Y']
+        serialized_grid = grid_data['grid']
 
-    # Create a grid of VisualNode objects
-    grid = [[VisualNode(node_data['x'], node_data['y']) for node_data in row] for row in serialized_grid]
+        # Create a grid of VisualNode objects
+        grid = [[VisualNode(node_data['x'], node_data['y']) for node_data in row] for row in serialized_grid]
 
-    # Now populate the attributes of each node
-    for i, row in enumerate(serialized_grid):
-        for j, node_data in enumerate(row):
-            node = grid[i][j]
-            node.width = node_data['width']
-            node.height = node_data['height']
-            node.color = node_data['color']
-            node.isClosed = node_data['isClosed']
-            node.isOpen = node_data['isOpen']
-            node.isBarrier = node_data['isBarrier']
-            node.hCost = node_data['hCost']
-            node.gCost = node_data['gCost']
-            node.parent = []
-            node.straight_neighbors = []
-            node.diagonal_neighbors = []
-            # For parent, straightNeighbors, and diagonalNeighbors, you need to reconstruct the references
-            # This part is omitted for simplicity and needs to be implemented based on how these are stored
+        startNode = None
+        targetNode = None
 
-    return grid, grid_x, grid_y
+        # Now populate the attributes of each node
+        for i, row in enumerate(serialized_grid):
+            for j, node_data in enumerate(row):
+                node = grid[i][j]
+                node.width = node_data['width']
+                node.height = node_data['height']
+                node.color = node_data['color']
+                node.isClosed = node_data['isClosed']
+                node.isOpen = node_data['isOpen']
+                node.isBarrier = node_data['isBarrier']
+                node.hCost = node_data['hCost']
+                node.gCost = node_data['gCost']
+                node.parent = []
+                node.straight_neighbors = []
+                node.diagonal_neighbors = []
+                # For parent, straightNeighbors, and diagonalNeighbors, you need to reconstruct the references
+                # This part is omitted for simplicity and needs to be implemented based on how these are stored
+
+                # Identify start and target nodes
+                node_state = node.check_state()
+                if node_state == 'start':
+                    startNode = node
+                elif node_state == 'target':
+                    targetNode = node
+
+        return grid, grid_x, grid_y, startNode, targetNode
+    except FileNotFoundError:
+        print("File not found")
+        return None, pathfinder_visualizer.GRID_X, pathfinder_visualizer.GRID_Y, None, None
