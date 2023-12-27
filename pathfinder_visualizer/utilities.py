@@ -169,6 +169,10 @@ def menu():
         pathfinder_visualizer.GRID_X = int(60 * value)  # Update the global grid_size
         pathfinder_visualizer.GRID_Y = int(40 * value)
 
+    def reset_slider():
+        grid_size_slider.set_value(1.0)
+        change_grid_size(1.0)
+
     # Add widgets
     menu.add.label("Steps to using Pathfinder Visualizer:", max_char=-1, font_size=title_font_size)
     menu.add.label("1. Click to place the start node\n"
@@ -183,6 +187,9 @@ def menu():
     # Add Grid Size Slider
     menu.add.label("Adjust Grid Size")
     grid_size_slider = menu.add.range_slider('Grid Size', default=1.0, range_values=(0.5, 2.5), increment=0.1, onchange=change_grid_size)
+
+    # Add a button to reset the grid size slider
+    menu.add.button('Reset Grid Size', reset_slider)
 
     menu.add.button('Start', start)
     menu.add.button('Quit', pygame_menu.events.EXIT)
