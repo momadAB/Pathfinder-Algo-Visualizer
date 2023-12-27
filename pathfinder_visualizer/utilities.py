@@ -130,6 +130,7 @@ def menu():
     # Calculate relative font sizes based on window dimensions
     title_font_size = max(5, windowWidth // 25)  # Title font size (5 is minimum)
     widget_font_size = max(5, windowWidth // 35)  # Widget font size (5 is minimum)
+    key_font_size = max(5, windowWidth // 40)    # Key font size
 
     # Custom theme
     mytheme = pygame_menu.themes.Theme(
@@ -139,7 +140,7 @@ def menu():
         widget_font=pygame_menu.font.FONT_FRANCHISE,
         widget_font_size=20,
         widget_font_color=(255, 255, 255),
-        selection_color=(255, 0, 0)
+        selection_color=(255, 0, 0),
     )
 
     # Create Menu
@@ -163,8 +164,8 @@ def menu():
                    "2. Click to place the target node\n"
                    "3. Click/hold to place barriers\n"
                    "4. Press SPACE for A* algorithm, B for BFS\n"
-                   "5. Press C to reset, X to keep barriers\n"
-                   "Hold right click to reset nodes.\n", max_char=-1, font_size=widget_font_size)
+                   "5. Press C to reset, X to reset but keep barriers\n"
+                   "Hold right click to erase.\n", max_char=-1, font_size=widget_font_size)
     # Add widgets
     menu.add.label("Adjust Volume")
     menu.add.range_slider('Volume', default=1, range_values=(0, 1), increment=0.1, onchange=change_volume)
@@ -186,7 +187,30 @@ def menu():
         menu.update(events)
         menu.draw(window)
 
+        # Highlight keys
+        key_instructions = [
+            ("SPACE", "for A* algorithm"),
+            ("B", "for BFS"),
+            ("C", "to reset"),
+            ("X", "to reset but keep barriers"),
+            ("ESC", "to return to menu")
+        ]
+        x, y = 50, 230  # Starting position for key instructions
+        for key, text in key_instructions:
+            # Render key in red box
+            key_surf = pygame.font.Font(None, key_font_size).render(key, True, pygame.Color('white'))
+            key_rect = key_surf.get_rect(topleft=(x, y))
+            pygame.draw.rect(window, (255, 0, 0), key_rect.inflate(10, 10), 0)
+            window.blit(key_surf, key_rect)
+
+            # Render accompanying text
+            text_surf = pygame.font.Font(None, widget_font_size).render(text, True, pygame.Color('white'))
+            window.blit(text_surf, (x + key_rect.width + 15, y))
+
+            y += key_rect.height + 20  # Move down for the next instruction
+
         pygame.display.update()
+
 
 # Calculates the overall cost
 def get_distance(node1, node2):
