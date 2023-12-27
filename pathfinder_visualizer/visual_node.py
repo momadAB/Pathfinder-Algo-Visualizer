@@ -9,9 +9,7 @@ kernel32 = ctypes.WinDLL('kernel32', use_last_error=True)
 # Define Sleep function
 usleep = kernel32.Sleep
 
-# Keep the ratio between the grids and window dimensions the same or there will be animation problems
-# pathfinder_visualizer.GRID_X = 60
-# pathfinder_visualizer.GRID_Y = 40
+
 class VisualNode:
 
     def __init__(self, x, y):
