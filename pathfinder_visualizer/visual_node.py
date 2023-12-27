@@ -1,5 +1,6 @@
 import pygame
 import ctypes
+from pathfinder_visualizer import GRID_X, GRID_Y, windowWidth, windowHeight
 
 # Load kernel32.dll
 kernel32 = ctypes.WinDLL('kernel32', use_last_error=True)
@@ -8,11 +9,11 @@ kernel32 = ctypes.WinDLL('kernel32', use_last_error=True)
 usleep = kernel32.Sleep
 
 # Keep the ratio between the grids and window dimensions the same or there will be animation problems
-GRID_X = 60
-GRID_Y = 40
+# GRID_X = 60
+# GRID_Y = 40
 
-windowHeight = 800
-windowWidth = 1200
+# windowHeight = 800
+# windowWidth = 1200
 # Color constants
 BLACK = (100, 100, 100)
 WHITE = (54, 54, 54)

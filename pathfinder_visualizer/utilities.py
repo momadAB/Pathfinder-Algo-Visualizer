@@ -8,6 +8,7 @@ from pathlib import Path
 import ctypes
 from .sound_player import play_sound_for_rect, create_sweep_sound
 from .visual_node import VisualNode
+from pathfinder_visualizer import GRID_X, GRID_Y, windowWidth, windowHeight
 
 # Load kernel32.dll
 kernel32 = ctypes.WinDLL('kernel32', use_last_error=True)
@@ -22,15 +23,15 @@ sound2 = r"button-6.wav"
 # length 10
 DIAGONAL_COST = 14
 STRAIGHT_COST = 10
-# Keep the ratio between the grids and window dimensions the same or there will be animation problems
-GRID_X = 60
-GRID_Y = 40
+# # Keep the ratio between the grids and window dimensions the same or there will be animation problems
+# GRID_X = 120
+# GRID_Y = 80
 
 # Global volume variable
 global_volume = 1.0
 
-windowHeight = 800
-windowWidth = 1200
+# windowHeight = 800
+# windowWidth = 1200
 # Color constants
 BLACK = (100, 100, 100)
 WHITE = (54, 54, 54)
