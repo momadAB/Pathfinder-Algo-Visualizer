@@ -298,7 +298,6 @@ def retrace_path(self, window, duration=1.0):
             for e in pygame.event.get():
                 if e.type == pygame.QUIT:
                     pygame.quit()
-            # print(node.color)
             if node.color != pathfinder_visualizer.ORANGE\
                     and node.color != pathfinder_visualizer.PURPLE:
                 node.set_color(pathfinder_visualizer.TEAL)
