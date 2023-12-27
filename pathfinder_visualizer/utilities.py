@@ -170,7 +170,7 @@ def menu():
     menu.add.range_slider('Volume', default=1, range_values=(0, 1), increment=0.1, onchange=change_volume)
     # Add Grid Size Slider
     menu.add.label("Adjust Grid Size")
-    menu.add.range_slider('Grid Size', default=1.0, range_values=(0.5, 3.0), increment=0.1, onchange=change_grid_size)
+    menu.add.range_slider('Grid Size', default=1.0, range_values=(0.5, 2.5), increment=0.1, onchange=change_grid_size)
 
     menu.add.button('Start', start)
     menu.add.button('Quit', pygame_menu.events.EXIT)
