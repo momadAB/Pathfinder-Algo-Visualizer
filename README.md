@@ -9,9 +9,10 @@ Pathfinder Visualizer is an interactive visualization tool for demonstrating pat
 
 - Interactive grid to set start and target nodes.
 - Ability to place and remove barriers with mouse clicks.
-- Real-time visualization of algorithm processing.
+- Slowed down visualization of algorithm processing.
 - Supports A* and BFS pathfinding algorithms.
 - Adjustable volume for sound effects.
+- Adjustable grid size.
 - User-friendly interface with instructions on how to use the visualizer.
 
 ## Getting Started
@@ -43,7 +44,7 @@ Run the program:
 ```bash
 python main.py
 ```
-Usage
+## Usage
 
 Upon launching the Pathfinder Visualizer, a start menu will display the following instructions:
 
@@ -54,6 +55,13 @@ Upon launching the Pathfinder Visualizer, a start menu will display the followin
     Press C to clear the grid, or X to retain barriers.
     Right-click to remove nodes.
 
-Adjust the volume with the slider and click 'Start' to begin the visualization.
+Adjust the volume with the first slider.
+
+Adjust the desired grid size with the second slider.
+
+Click 'Start' to begin the visualization.
+
+Press ESC during visualization to return to the menu.
+
 
 Created by Mohammad Baqer

@@ -4,6 +4,7 @@ import pygame
 import random
 import pygame_menu
 import time
+import json
 from pathlib import Path
 import ctypes
 import pathfinder_visualizer
@@ -108,6 +109,16 @@ def main():
                 if e.key == pygame.K_SPACE and start and target:  # A* algorithm
                     a_star_algo(start, target, grid, window)
 
+                elif e.key == pygame.K_s:
+                    print('Saved layout to file')
+                    save_grid_to_file(grid, pathfinder_visualizer.GRID_X,
+                                      pathfinder_visualizer.GRID_Y, 'testfile')
+
+                elif e.key == pygame.K_l:
+                    print('Loading layout')
+                    grid, pathfinder_visualizer.GRID_X, pathfinder_visualizer.GRID_Y = load_grid_from_file('testfile')
+                    redraw_grid(window, grid)
+
                 elif e.key == pygame.K_b and start and target:  # BFS algorithm
                     bfs_algo(start, target, grid, window)
 
@@ -130,7 +141,7 @@ def menu():
     # Calculate relative font sizes based on window dimensions
     title_font_size = max(5, windowWidth // 25)  # Title font size (5 is minimum)
     widget_font_size = max(5, windowWidth // 35)  # Widget font size (5 is minimum)
-    key_font_size = max(5, windowWidth // 40)    # Key font size
+    key_font_size = max(5, windowWidth // 40)  # Key font size
 
     # Custom theme
     mytheme = pygame_menu.themes.Theme(
@@ -171,13 +182,16 @@ def menu():
     menu.add.range_slider('Volume', default=1, range_values=(0, 1), increment=0.1, onchange=change_volume)
     # Add Grid Size Slider
     menu.add.label("Adjust Grid Size")
-    menu.add.range_slider('Grid Size', default=1.0, range_values=(0.5, 2.5), increment=0.1, onchange=change_grid_size)
+    grid_size_slider = menu.add.range_slider('Grid Size', default=1.0, range_values=(0.5, 2.5), increment=0.1, onchange=change_grid_size)
 
     menu.add.button('Start', start)
     menu.add.button('Quit', pygame_menu.events.EXIT)
 
     # Main loop
     while True:
+        # Always make sure that the grid size is what the slider says. This avoids discrepancies after loading a map
+        change_grid_size(grid_size_slider.get_value())
+
         events = pygame.event.get()
         for event in events:
             if event.type == pygame.QUIT:
@@ -327,7 +341,8 @@ def a_star_algo(startNode, targetNode, grid, window):
                     if neighbor is not startNode and neighbor.color is not SLATE_GREY:
                         # pygame.mixer.music.play()
                         # pygame.mixer.stop()
-                        play_sound_for_rect(neighbor, pathfinder_visualizer.GRID_X, pathfinder_visualizer.GRID_Y, global_volume)
+                        play_sound_for_rect(neighbor, pathfinder_visualizer.GRID_X, pathfinder_visualizer.GRID_Y,
+                                            global_volume)
                         neighbor.set_color(LAVENDER)
                         update_node(neighbor, window)
 
@@ -437,3 +452,73 @@ def draw_grid(win):
     pygame.display.update()
 
     return grid
+
+
+def redraw_grid(window, grid):
+    """
+    Redraws the entire grid on the given window.
+
+    :param window: The graphical window where the grid is to be drawn.
+    :param grid: The grid, a 2D list of VisualNode objects.
+    """
+    # Clear the window before redrawing
+    window.fill(BLACK)
+
+    # Draw each node in the grid
+    for row in grid:
+        for node in row:
+            node.draw(window)
+
+    # Update the display to show the new drawings
+    pygame.display.update()
+
+# Example usage
+# redraw_grid(window, grid)
+
+
+def save_grid_to_file(grid, grid_x, grid_y, filename):
+    # Convert grid to a simpler representation
+    simple_grid = [[node.to_dict() for node in row] for row in grid]
+
+    # Create a dictionary to hold grid data and dimensions
+    grid_data = {
+        'grid': simple_grid,
+        'GRID_X': grid_x,
+        'GRID_Y': grid_y
+    }
+
+    # Write to a file
+    with open(filename, 'w') as file:
+        json.dump(grid_data, file, indent=4)
+
+
+def load_grid_from_file(filename):
+    with open(filename, 'r') as file:
+        grid_data = json.load(file)
+
+    grid_x = grid_data['GRID_X']
+    grid_y = grid_data['GRID_Y']
+    serialized_grid = grid_data['grid']
+
+    # Create a grid of VisualNode objects
+    grid = [[VisualNode(node_data['x'], node_data['y']) for node_data in row] for row in serialized_grid]
+
+    # Now populate the attributes of each node
+    for i, row in enumerate(serialized_grid):
+        for j, node_data in enumerate(row):
+            node = grid[i][j]
+            node.width = node_data['width']
+            node.height = node_data['height']
+            node.color = node_data['color']
+            node.isClosed = node_data['isClosed']
+            node.isOpen = node_data['isOpen']
+            node.isBarrier = node_data['isBarrier']
+            node.hCost = node_data['hCost']
+            node.gCost = node_data['gCost']
+            node.parent = []
+            node.straight_neighbors = []
+            node.diagonal_neighbors = []
+            # For parent, straightNeighbors, and diagonalNeighbors, you need to reconstruct the references
+            # This part is omitted for simplicity and needs to be implemented based on how these are stored
+
+    return grid, grid_x, grid_y

@@ -42,6 +42,23 @@ class VisualNode:
         self.hCost = 0
         self.gCost = 0
 
+    def to_dict(self):
+        return {
+            'x': self.x,
+            'y': self.y,
+            'width': self.width,
+            'height': self.height,
+            'color': self.color,
+            'straightNeighbors': self.straight_neighbors,
+            'diagonalNeighbors': self.diagonal_neighbors,
+            'isClosed': self.isClosed,
+            'isOpen': self.isOpen,
+            'isBarrier': self.isBarrier,
+            'parent': self.parent,
+            'hCost': self.hCost,
+            'gCost': self.gCost,
+            }
+
     def get_f_cost(self):
         return self.hCost + self.gCost
 
@@ -52,7 +69,10 @@ class VisualNode:
         self.color = color
 
     def check_state(self):
-
+        '''
+        Checks the state of the node. Can be walkable, barrier, start, or target.
+        :return:  String describing the state of the node
+        '''
         if self.color == LAVENDER or self.color == SLATE_GREY or self.color == WHITE or self.color == TEAL:
             return "walkable"
         elif self.color == BLACK:
@@ -73,6 +93,9 @@ class VisualNode:
         pygame.display.update(self.rect)
 
     def draw_with_longer_animation(self, win):
+        '''
+        Same as draw() but with a 3 microsecond delay
+        '''
         self.rect = (self.y * self.width, self.x * self.height, self.width - 2, self.height - 2)
         # Rounded corners
         pygame.draw.rect(win, self.color, self.rect, border_radius=5)
