@@ -199,7 +199,7 @@ def menu():
                    "Hold right click to erase.\n", max_char=-1, font_size=widget_font_size)
     # Add widgets
     menu.add.label("Adjust Volume")
-    menu.add.range_slider('Volume', default=1, range_values=(0, 1), increment=0.1, onchange=change_volume)
+    menu.add.range_slider('Volume', default=0.20, range_values=(0, 1), increment=0.1, onchange=change_volume)
     # Add Grid Size Slider
     menu.add.label("Adjust Grid Size")
     grid_size_slider = menu.add.range_slider('Grid Size', default=1.0, range_values=(0.5, 2.5), increment=0.1, onchange=change_grid_size)

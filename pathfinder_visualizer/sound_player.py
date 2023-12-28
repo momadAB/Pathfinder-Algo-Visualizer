@@ -1,6 +1,8 @@
 import numpy as np
 import pygame
 
+import pathfinder_visualizer
+
 
 def create_sweep_sound(node_count, duration=2.0):
     """
@@ -28,12 +30,15 @@ def create_sweep_sound(node_count, duration=2.0):
     return pygame.sndarray.make_sound(stereo_wave)
 
 
-# Function to create a sound based on x-coordinate
+# Function to create a sound based on x and y coordinates
 def create_sound(x, y, grid_width, grid_height):
     # Map the coordinates to frequencies
-    base_frequency = np.interp(x, [0, grid_width], [110, 330])   # 110 330
-    frequency_variation = np.interp(y, [0, grid_height], [-20, 20])
-    frequency = base_frequency + frequency_variation
+    frequency_x = np.interp(x, [0, grid_height], [90, 250])   # Frequency for x-axis
+    frequency_y = np.interp(y, [0, grid_width], [90, 250])  # Frequency for y-axis
+
+    # Average the frequencies from both axes for the final frequency
+    frequency = (frequency_x + frequency_y) / 2
+    print(x, y, frequency, grid_width, grid_height, pathfinder_visualizer.GRID_X, pathfinder_visualizer.GRID_Y)
 
     # Create the sound wave
     sample_rate = 44100

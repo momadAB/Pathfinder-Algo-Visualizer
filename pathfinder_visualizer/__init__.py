@@ -30,7 +30,10 @@ PURPLE = [43, 222, 148]
 ORANGE = [97, 201, 103]
 LAVENDER = [155, 185, 158]
 SLATE_GREY = [109, 158, 74]
-TEAL = [0, 230, 0]
+# TEAL = [0, 230, 0]  # Green
+# TEAL = [224, 217, 0]  # Yellow
+TEAL = [222, 148, 43]  # Orange
+
 
 # DARK RED PRESET
 # PURPLE = [43, 0, 0]
@@ -38,6 +41,7 @@ TEAL = [0, 230, 0]
 # LAVENDER = [155, 0, 0]
 # SLATE_GREY = [83, 0, 0]
 # TEAL = [230, 0, 0]
+
 
 # Nikkis LIGHT RED PRESET
 
