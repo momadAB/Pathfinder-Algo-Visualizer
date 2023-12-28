@@ -73,7 +73,7 @@ class VisualNode:
     def draw(self, win):
         self.rect = (self.y * self.width, self.x * self.height, self.width - 2, self.height - 2)
         # Rounded corners
-        pygame.draw.rect(win, self.color, self.rect, border_radius=5)
+        pygame.draw.rect(win, self.color, self.rect, border_radius=0)
 
         pygame.display.update(self.rect)
 
@@ -83,7 +83,7 @@ class VisualNode:
         '''
         self.rect = (self.y * self.width, self.x * self.height, self.width - 2, self.height - 2)
         # Rounded corners
-        pygame.draw.rect(win, self.color, self.rect, border_radius=5)
+        pygame.draw.rect(win, self.color, self.rect, border_radius=0)
 
         pygame.display.update(self.rect)
 

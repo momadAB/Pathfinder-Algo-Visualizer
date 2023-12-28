@@ -288,12 +288,13 @@ def retrace_path(self, window, duration=1.0):
 
         # print(path_back)
         # Randomly shuffle the path nodes, excluding the starting node (which is the last one in path_back)
-        random.shuffle(path_back)
+        # random.shuffle(path_back)
         node_count = len(path_back)
+        path_back = reversed(path_back)
         delay_per_node = duration / node_count if node_count else 0
         # print(path_back)
 
-        # Draw the nodes in the random order
+        # Draw the nodes in the start-to-end direction
         for node in path_back:
             for e in pygame.event.get():
                 if e.type == pygame.QUIT:
@@ -492,7 +493,7 @@ def redraw_grid(window, grid):
     :param grid: The grid, a 2D list of VisualNode objects.
     """
     # Clear the window before redrawing
-    window.fill(pathfinder_visualizer.BLACK)
+    window.fill(pathfinder_visualizer.BACKGROUND)
 
     # Draw each node in the grid
     for row in grid:

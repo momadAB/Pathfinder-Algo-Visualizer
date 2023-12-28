@@ -11,7 +11,8 @@ windowWidth = 1200
 # LAVENDER is edge search nodes, SLATE_GREY is searched nodes
 # TEAL is path to end node
 
-BLACK = [100, 100, 100]
+BACKGROUND = [80, 80, 80]
+BLACK = [70, 70, 70]
 WHITE = [54, 54, 54]
 # PURPLE = [209, 60, 232]
 # PURPLE = [43, 222, 148]
