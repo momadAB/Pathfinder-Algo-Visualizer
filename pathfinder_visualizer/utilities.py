@@ -42,18 +42,19 @@ def main():
     # pygame.mixer.init()
     # pygame.mixer.music.load(sound)
     pygame.display.set_caption("Pathfinder Visualizer by Mohammad Baqer")
-    window.fill(pathfinder_visualizer.BLACK)  # Black background acts as "outline" for the nodes
+    window.fill(pathfinder_visualizer.BACKGROUND)  # Black background acts as "outline" for the nodes
 
     # Create a font object
     # font = pygame.font.SysFont(None, 36)  # You can replace None with a font name
-    #
-    # # Render the text
+
+    # Render the text
     # text = font.render('Welcome', True, (255, 255, 255))  # White color
-    #
-    # # Fill the background
-    # window.fill((0, 0, 0))  # Black background
-    #
-    # # Blit the text
+
+    # Fill the background
+    top_bar_rect = pygame.Rect(0, 0, windowWidth, pathfinder_visualizer.BlockSize)
+    pygame.draw.rect(window, pathfinder_visualizer.WHITE, top_bar_rect)
+
+    # Blit the text
     # window.blit(text, (10, 10))
 
     grid = draw_grid(window)
@@ -205,8 +206,8 @@ def menu():
         global_volume = volume  # Update the global volume
 
     def change_grid_size(value):
-        pathfinder_visualizer.GRID_X = int(60 * value)  # Update the global grid_size
-        pathfinder_visualizer.GRID_Y = int(40 * value)
+        pathfinder_visualizer.GRID_X = int(pathfinder_visualizer.GRID_X * value)  # Update the global grid_size
+        pathfinder_visualizer.GRID_Y = int(pathfinder_visualizer.GRID_Y * value)
 
     def reset_slider():
         grid_size_slider.set_value(1.0)
@@ -477,34 +478,38 @@ def coord_to_grid(coord):
     x, y = coord
 
     column = x // (windowWidth // pathfinder_visualizer.GRID_X)
-    row = y // (windowHeight // pathfinder_visualizer.GRID_Y)
+    if y > pathfinder_visualizer.BlockSize:
+        row = ((y - pathfinder_visualizer.BlockSize) //
+               ((windowHeight - pathfinder_visualizer.BlockSize) // pathfinder_visualizer.GRID_Y))
+    else:
+        row = 0
+    # print(int((windowHeight - pathfinder_visualizer.BlockSize) / pathfinder_visualizer.GRID_Y), row)
 
     return column, row
 
 
 def draw_grid(win):
     grid = []
-    # Populate grid
+
+    # Populate grid only once
     for i in range(pathfinder_visualizer.GRID_Y):
         grid.append([])
         for j in range(pathfinder_visualizer.GRID_X):
             node = VisualNode(i, j)
             grid[i].append(node)
 
-    # Make outline
-    for node in grid[0]:
-        node.set_color(pathfinder_visualizer.BLACK)
-    for node in grid[pathfinder_visualizer.GRID_Y - 1]:
-        node.set_color(pathfinder_visualizer.BLACK)
-    vertical1 = []
-    vertical2 = []
-    for list in grid:
-        vertical1.append(list[0])
-        vertical2.append(list[pathfinder_visualizer.GRID_X - 1])
-    for node in vertical1:
-        node.set_color(pathfinder_visualizer.BLACK)
-    for node in vertical2:
-        node.set_color(pathfinder_visualizer.BLACK)
+    # Make outline - Check if the grid is non-empty and has enough rows
+    if grid and len(grid) > pathfinder_visualizer.GRID_Y - 1:
+        for node in grid[0]:
+            node.set_color(pathfinder_visualizer.BLACK)
+        for node in grid[-1]:
+            node.set_color(pathfinder_visualizer.BLACK)
+
+        # Make vertical outlines
+        vertical1 = [row[0] for row in grid if row]  # First element of each row
+        vertical2 = [row[-1] for row in grid if row]  # Last element of each row
+        for node in vertical1 + vertical2:
+            node.set_color(pathfinder_visualizer.BLACK)
 
     # Draw nodes in grid
     for row in grid:
@@ -525,6 +530,9 @@ def redraw_grid(window, grid):
     """
     # Clear the window before redrawing
     window.fill(pathfinder_visualizer.BACKGROUND)
+
+    top_bar_rect = pygame.Rect(0, 0, windowWidth, pathfinder_visualizer.BlockSize)
+    pygame.draw.rect(window, pathfinder_visualizer.WHITE, top_bar_rect)
 
     # Draw each node in the grid
     for row in grid:

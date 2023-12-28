@@ -1,9 +1,11 @@
 # Keep the ratio between the grids and window dimensions the same or there will be animation problems
 GRID_X = 60  # 15 - 150
-GRID_Y = 40  # 10 - 100
+GRID_Y = 37  # 10 - 100
 
 windowHeight = 800
 windowWidth = 1200
+# Pixel size of the information block on the top of the screen during visualization
+BlockSize = 50
 
 # Color presets
 # BLACK is empty node, WHITE is barrier

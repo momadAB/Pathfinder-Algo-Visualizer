@@ -16,7 +16,7 @@ class VisualNode:
         self.x = x
         self.y = y
         self.width = int(windowWidth / pathfinder_visualizer.GRID_X)
-        self.height = int(windowHeight / pathfinder_visualizer.GRID_Y)
+        self.height = int((windowHeight - pathfinder_visualizer.BlockSize) / pathfinder_visualizer.GRID_Y)
         self.color = pathfinder_visualizer.WHITE
         self.straight_neighbors = []
         self.diagonal_neighbors = []
@@ -72,22 +72,23 @@ class VisualNode:
             return
 
     def draw(self, win):
-        self.rect = (self.y * self.width, self.x * self.height, self.width - 2, self.height - 2)
-        # Rounded corners
+        # Adjust the y position of the node
+        rect_x = self.y * self.width
+        rect_y = self.x * self.height + pathfinder_visualizer.BlockSize  # Apply the offset here
+        self.rect = (rect_x, rect_y, self.width - 2, self.height - 2)
         pygame.draw.rect(win, self.color, self.rect, border_radius=0)
-
         pygame.display.update(self.rect)
 
     def draw_with_longer_animation(self, win):
         '''
         Same as draw() but with a 3 microsecond delay
         '''
-        self.rect = (self.y * self.width, self.x * self.height, self.width - 2, self.height - 2)
-        # Rounded corners
+        # Adjust the y position of the node
+        rect_x = self.y * self.width
+        rect_y = self.x * self.height + pathfinder_visualizer.BlockSize  # Apply the offset here
+        self.rect = (rect_x, rect_y, self.width - 2, self.height - 2)
         pygame.draw.rect(win, self.color, self.rect, border_radius=0)
-
         pygame.display.update(self.rect)
-
         # Microseconds sleep
         usleep(3)
 
