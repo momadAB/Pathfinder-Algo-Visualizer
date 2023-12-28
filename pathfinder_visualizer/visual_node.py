@@ -15,6 +15,7 @@ class VisualNode:
     def __init__(self, x, y):
         self.x = x
         self.y = y
+        print(windowWidth, pathfinder_visualizer.GRID_X)
         self.width = int(windowWidth / pathfinder_visualizer.GRID_X)
         self.height = int((windowHeight - pathfinder_visualizer.BlockSize) / pathfinder_visualizer.GRID_Y)
         self.color = pathfinder_visualizer.WHITE

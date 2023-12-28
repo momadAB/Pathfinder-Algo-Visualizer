@@ -1,4 +1,7 @@
 # Keep the ratio between the grids and window dimensions the same or there will be animation problems
+INITIAL_GRID_X = 60
+INITIAL_GRID_Y = 37
+
 GRID_X = 60  # 15 - 150
 GRID_Y = 37  # 10 - 100
 

@@ -206,8 +206,8 @@ def menu():
         global_volume = volume  # Update the global volume
 
     def change_grid_size(value):
-        pathfinder_visualizer.GRID_X = int(pathfinder_visualizer.GRID_X * value)  # Update the global grid_size
-        pathfinder_visualizer.GRID_Y = int(pathfinder_visualizer.GRID_Y * value)
+        pathfinder_visualizer.GRID_X = int(pathfinder_visualizer.INITIAL_GRID_X * value)  # Update the global grid_size
+        pathfinder_visualizer.GRID_Y = int(pathfinder_visualizer.INITIAL_GRID_Y * value)
 
     def reset_slider():
         grid_size_slider.set_value(1.0)
