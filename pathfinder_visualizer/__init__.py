@@ -35,18 +35,45 @@ SLATE_GREY = [109, 158, 74]
 TEAL = [222, 148, 43]  # Orange
 
 
-# DARK RED PRESET
-# PURPLE = [43, 0, 0]
-# ORANGE = [97, 0, 0]
-# LAVENDER = [155, 0, 0]
-# SLATE_GREY = [83, 0, 0]
-# TEAL = [230, 0, 0]
+def green_preset():
+    # GREEN PRESET
+    global PURPLE, ORANGE, LAVENDER, SLATE_GREY, TEAL
+    PURPLE = [43, 222, 148]
+    ORANGE = [97, 201, 103]
+    LAVENDER = [155, 185, 158]
+    SLATE_GREY = [109, 158, 74]
+    TEAL = [222, 148, 43]  # Orange
 
 
-# Nikkis LIGHT RED PRESET
+def dark_red_preset():
+    # DARK RED PRESET
+    global PURPLE, ORANGE, LAVENDER, SLATE_GREY, TEAL
+    PURPLE = [43, 0, 0]
+    ORANGE = [97, 0, 0]
+    LAVENDER = [155, 0, 0]
+    SLATE_GREY = [83, 0, 0]
+    TEAL = [230, 0, 0]
 
-# PURPLE = [50, 0, 0]
-# ORANGE = [124, 0, 0]
-# LAVENDER = [120, 55, 55]
-# SLATE_GREY = [140, 96, 96]
-# TEAL = [230, 0, 0]
+
+def light_red_preset():
+    # LIGHT RED PRESET
+    global PURPLE, ORANGE, LAVENDER, SLATE_GREY, TEAL
+    PURPLE = [50, 0, 0]
+    ORANGE = [124, 0, 0]
+    LAVENDER = [120, 55, 55]
+    SLATE_GREY = [140, 96, 96]
+    TEAL = [230, 0, 0]
+
+
+SWITCH_DICT = { 'GREEN': green_preset,
+                "DARKRED": dark_red_preset,
+                'LIGHTRED': light_red_preset
+                }
+
+
+def switch_preset(preset_name):
+    '''
+    Switches the color preset
+    :param preset_name: Can be GREEN, DARKRED, or LIGHTRED
+    '''
+    SWITCH_DICT.get(preset_name, green_preset)()

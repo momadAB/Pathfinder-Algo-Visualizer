@@ -26,6 +26,7 @@ class VisualNode:
         self.parent = None
         self.hCost = 0
         self.gCost = 0
+        self.border_radius = 0
 
     def to_dict(self):
         return {

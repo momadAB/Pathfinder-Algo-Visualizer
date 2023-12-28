@@ -10,7 +10,7 @@ import ctypes
 import pathfinder_visualizer
 from .sound_player import play_sound_for_rect
 from .visual_node import VisualNode
-from pathfinder_visualizer import windowWidth, windowHeight
+from pathfinder_visualizer import windowWidth, windowHeight, switch_preset
 
 # Load kernel32.dll
 kernel32 = ctypes.WinDLL('kernel32', use_last_error=True)
@@ -43,6 +43,19 @@ def main():
     # pygame.mixer.music.load(sound)
     pygame.display.set_caption("Pathfinder Visualizer by Mohammad Baqer")
     window.fill(pathfinder_visualizer.BLACK)  # Black background acts as "outline" for the nodes
+
+    # Create a font object
+    # font = pygame.font.SysFont(None, 36)  # You can replace None with a font name
+    #
+    # # Render the text
+    # text = font.render('Welcome', True, (255, 255, 255))  # White color
+    #
+    # # Fill the background
+    # window.fill((0, 0, 0))  # Black background
+    #
+    # # Blit the text
+    # window.blit(text, (10, 10))
+
     grid = draw_grid(window)
 
     start = None
@@ -50,7 +63,7 @@ def main():
 
     try:
         loaded_grid, gridx, gridy, start, target = load_grid_from_file('menugrid')
-        if gridx == pathfinder_visualizer.GRID_X and gridy == pathfinder_visualizer.GRID_Y\
+        if gridx == pathfinder_visualizer.GRID_X and gridy == pathfinder_visualizer.GRID_Y \
                 and loaded_grid is not None:
             grid = loaded_grid
             redraw_grid(window, loaded_grid)
@@ -127,9 +140,19 @@ def main():
                     save_grid_to_file(grid, pathfinder_visualizer.GRID_X,
                                       pathfinder_visualizer.GRID_Y, 'testfile')
 
+                elif e.key == pygame.K_g:
+                    reset_from_search(grid, window)
+                    switch_preset('GREEN')
+                    reset_start_and_target_colors(start, target, window)
+
+                elif e.key == pygame.K_r:
+                    reset_from_search(grid, window)
+                    switch_preset('DARKRED')
+                    reset_start_and_target_colors(start, target, window)
+
                 elif e.key == pygame.K_l:
                     print('Loading layout')
-                    loaded_grid, pathfinder_visualizer.GRID_X, pathfinder_visualizer.GRID_Y,\
+                    loaded_grid, pathfinder_visualizer.GRID_X, pathfinder_visualizer.GRID_Y, \
                         start, target = load_grid_from_file('testfile')
                     if loaded_grid is not None:
                         grid = loaded_grid
@@ -202,7 +225,8 @@ def menu():
     menu.add.range_slider('Volume', default=0.20, range_values=(0, 1), increment=0.1, onchange=change_volume)
     # Add Grid Size Slider
     menu.add.label("Adjust Grid Size")
-    grid_size_slider = menu.add.range_slider('Grid Size', default=1.0, range_values=(0.5, 2.5), increment=0.1, onchange=change_grid_size)
+    grid_size_slider = menu.add.range_slider('Grid Size', default=1.0, range_values=(0.5, 2.5), increment=0.1,
+                                             onchange=change_grid_size)
 
     # Add a button to reset the grid size slider
     menu.add.button('Reset Grid Size', reset_slider)
@@ -251,6 +275,13 @@ def menu():
         pygame.display.update()
 
 
+def reset_start_and_target_colors(start, target, win):
+    start.color = pathfinder_visualizer.PURPLE
+    target.color = pathfinder_visualizer.ORANGE
+    start.draw(win)
+    target.draw(win)
+
+
 # Calculates the overall cost
 def get_distance(node1, node2):
     y_diff = abs(node1.x - node2.x)
@@ -270,8 +301,8 @@ def get_distance(node1, node2):
 def reset_from_search(grid, win):
     for row in grid:
         for node in row:
-            if node.color == pathfinder_visualizer.SLATE_GREY\
-                    or node.color == pathfinder_visualizer.LAVENDER\
+            if node.color == pathfinder_visualizer.SLATE_GREY \
+                    or node.color == pathfinder_visualizer.LAVENDER \
                     or node.color == pathfinder_visualizer.TEAL:
                 # node.set_color(WHITE)
                 node.set_color(pathfinder_visualizer.WHITE)
@@ -299,7 +330,7 @@ def retrace_path(self, window, duration=1.0):
             for e in pygame.event.get():
                 if e.type == pygame.QUIT:
                     pygame.quit()
-            if node.color != pathfinder_visualizer.ORANGE\
+            if node.color != pathfinder_visualizer.ORANGE \
                     and node.color != pathfinder_visualizer.PURPLE:
                 node.set_color(pathfinder_visualizer.TEAL)
                 pygame.time.wait(int(delay_per_node * 1000))
@@ -367,7 +398,7 @@ def a_star_algo(startNode, targetNode, grid, window):
 
                 if neighbor not in openSet:
                     openSet.append(neighbor)
-                    if neighbor is not startNode\
+                    if neighbor is not startNode \
                             and neighbor.color is not pathfinder_visualizer.SLATE_GREY:
                         # pygame.mixer.music.play()
                         # pygame.mixer.stop()
@@ -416,7 +447,7 @@ def bfs_algo(startNode, targetNode, grid, window):
             if neighbor.check_state() != "walkable":
                 continue
 
-            if neighbor is not startNode\
+            if neighbor is not startNode \
                     and neighbor.color is not pathfinder_visualizer.SLATE_GREY:
                 # pygame.mixer.music.play()
                 neighbor.set_color(pathfinder_visualizer.LAVENDER)
@@ -502,6 +533,7 @@ def redraw_grid(window, grid):
 
     # Update the display to show the new drawings
     pygame.display.update()
+
 
 # Example usage
 # redraw_grid(window, grid)

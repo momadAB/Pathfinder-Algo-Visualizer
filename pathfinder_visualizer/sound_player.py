@@ -38,7 +38,7 @@ def create_sound(x, y, grid_width, grid_height):
 
     # Average the frequencies from both axes for the final frequency
     frequency = (frequency_x + frequency_y) / 2
-    print(x, y, frequency, grid_width, grid_height, pathfinder_visualizer.GRID_X, pathfinder_visualizer.GRID_Y)
+    # print(x, y, frequency, grid_width, grid_height, pathfinder_visualizer.GRID_X, pathfinder_visualizer.GRID_Y)
 
     # Create the sound wave
     sample_rate = 44100
