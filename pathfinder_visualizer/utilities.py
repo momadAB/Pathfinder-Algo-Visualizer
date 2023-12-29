@@ -30,7 +30,7 @@ STRAIGHT_COST = 10
 # pathfinder_visualizer.GRID_Y = 80
 
 # Global volume variable
-global_volume = 1.0
+global_volume = 0.4
 
 
 def main():
@@ -53,6 +53,20 @@ def main():
     # Fill the background
     top_bar_rect = pygame.Rect(0, 0, windowWidth, pathfinder_visualizer.BlockSize)
     pygame.draw.rect(window, pathfinder_visualizer.WHITE, top_bar_rect)
+
+    # Define button dimensions and positions
+    button_width, button_height = 80, 30
+    light_red_button_rect = pygame.Rect(windowWidth - button_width * 3 - 20, 10, button_width, button_height)
+    red_button_rect = pygame.Rect(windowWidth - button_width * 2 - 10, 10, button_width, button_height)
+    green_button_rect = pygame.Rect(windowWidth - button_width - 10, 10, button_width, button_height)
+
+    # Draw the buttons
+    pygame.draw.rect(window, (255, 200, 200), light_red_button_rect)  # Light Red button
+    pygame.draw.rect(window, (255, 0, 0), red_button_rect)             # Red button
+    pygame.draw.rect(window, (0, 255, 0), green_button_rect)
+
+    # Update display
+    pygame.display.update()
 
     # Blit the text
     # window.blit(text, (10, 10))
@@ -82,6 +96,21 @@ def main():
         for e in pygame.event.get():
             if e.type == pygame.QUIT:
                 return  # Exit the loop if window is closed
+
+            # Check for mouse click event
+            if e.type == pygame.MOUSEBUTTONDOWN:
+                if red_button_rect.collidepoint(e.pos):
+                    reset_from_search(grid, window)
+                    switch_preset('DARKRED')
+                    reset_start_and_target_colors(start, target, window)
+                elif green_button_rect.collidepoint(e.pos):
+                    reset_from_search(grid, window)
+                    switch_preset('GREEN')
+                    reset_start_and_target_colors(start, target, window)
+                elif light_red_button_rect.collidepoint(e.pos):
+                    reset_from_search(grid, window)
+                    switch_preset('LIGHTRED')
+                    reset_start_and_target_colors(start, target, window)
 
             if pygame.mouse.get_pressed(num_buttons=3)[0]:  # Left mouse click, set nodes to start, target, or barrier
                 coord = pygame.mouse.get_pos()
@@ -140,16 +169,6 @@ def main():
                     print('Saved layout to file')
                     save_grid_to_file(grid, pathfinder_visualizer.GRID_X,
                                       pathfinder_visualizer.GRID_Y, 'testfile')
-
-                elif e.key == pygame.K_g:
-                    reset_from_search(grid, window)
-                    switch_preset('GREEN')
-                    reset_start_and_target_colors(start, target, window)
-
-                elif e.key == pygame.K_r:
-                    reset_from_search(grid, window)
-                    switch_preset('DARKRED')
-                    reset_start_and_target_colors(start, target, window)
 
                 elif e.key == pygame.K_l:
                     print('Loading layout')
@@ -223,7 +242,7 @@ def menu():
                    "Hold right click to erase.\n", max_char=-1, font_size=widget_font_size)
     # Add widgets
     menu.add.label("Adjust Volume")
-    menu.add.range_slider('Volume', default=0.20, range_values=(0, 1), increment=0.1, onchange=change_volume)
+    menu.add.range_slider('Volume', default=0.5, range_values=(0, 1), increment=0.1, onchange=change_volume)
     # Add Grid Size Slider
     menu.add.label("Adjust Grid Size")
     grid_size_slider = menu.add.range_slider('Grid Size', default=1.0, range_values=(0.5, 2.5), increment=0.1,
@@ -335,8 +354,6 @@ def retrace_path(self, window, duration=1.0):
                     and node.color != pathfinder_visualizer.PURPLE:
                 node.set_color(pathfinder_visualizer.TEAL)
                 pygame.time.wait(int(delay_per_node * 1000))
-                # print(global_volume)
-                # pygame.mixer.stop()
                 play_sound_for_rect(node, pathfinder_visualizer.GRID_X, pathfinder_visualizer.GRID_Y, global_volume)
                 node.draw(window)
             pygame.display.update()  # Update the display to reflect the changes
@@ -533,6 +550,17 @@ def redraw_grid(window, grid):
 
     top_bar_rect = pygame.Rect(0, 0, windowWidth, pathfinder_visualizer.BlockSize)
     pygame.draw.rect(window, pathfinder_visualizer.WHITE, top_bar_rect)
+
+    # Define button dimensions and positions
+    button_width, button_height = 80, 30
+    light_red_button_rect = pygame.Rect(windowWidth - button_width * 3 - 20, 10, button_width, button_height)
+    red_button_rect = pygame.Rect(windowWidth - button_width * 2 - 10, 10, button_width, button_height)
+    green_button_rect = pygame.Rect(windowWidth - button_width - 10, 10, button_width, button_height)
+
+    # Draw the buttons
+    pygame.draw.rect(window, (255, 200, 200), light_red_button_rect)  # Light Red button
+    pygame.draw.rect(window, (255, 0, 0), red_button_rect)             # Red button
+    pygame.draw.rect(window, (0, 255, 0), green_button_rect)
 
     # Draw each node in the grid
     for row in grid:
