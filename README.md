@@ -13,6 +13,7 @@ Pathfinder Visualizer is an interactive visualization tool for demonstrating pat
 - Supports A* and BFS pathfinding algorithms.
 - Adjustable volume for sound effects.
 - Adjustable grid size.
+- 3 different color presets.
 - User-friendly interface with instructions on how to use the visualizer.
 
 ## Getting Started
